@@ -9,64 +9,78 @@
   // =========================================================================
   // 1. CONFIGURATION & CONSTANTS
   // =========================================================================
-  const GAME_DURATION_SEC = 180; // 180 seconds total
-  const TICK_INTERVAL_MS = 1000; // Chuẩn 1000ms: 1 giây nhảy 1 tick để người chơi kịp phân tích
-  const TOTAL_TICKS = 180;       // 180 ticks = 180 giây
+  const GAME_DURATION_SEC = 300; // 300 seconds total (5 phút)
+  const TICK_INTERVAL_MS = 1350; // Chuẩn 1350ms: nhịp sàn thư thả để người chơi đọc tin & quan sát 3 mã
+  const TOTAL_TICKS = Math.ceil((GAME_DURATION_SEC * 1000) / TICK_INTERVAL_MS); // ~223 ticks
   const INITIAL_CASH = 100000000; // 100 triệu VNĐ
   const COOLDOWN_MS = 500;       // 0.5s anti-spam cooldown
   const NEWS_DELAY_MS = 4500;    // 4.5s đếm ngược trước khi tin tức tác động lên giá
 
-  // Market Phase Definitions (Calibrated for 1-second steps)
+  // Market Phase Definitions (Calibrated for 300s match / 1350ms ticks)
   const PHASES = [
     {
       id: 'recovery',
       name: 'Phục hồi',
       badgeClass: 'cycle-recovery',
       startSec: 0,
-      endSec: 40,
+      endSec: 70,
       description: 'Thị trường tạo đáy nghi ngờ, tích lũy nhẹ nhàng.',
-      driftTRS: 0.0012,
-      driftLAN: 0.0025,
-      driftMEO: 0.0035,
+      driftTRS: 0.0015,
+      driftLAN: 0.0035,
+      driftMEO: 0.0050,
       volMultiplier: 1.0
     },
     {
       id: 'euphoria',
       name: 'Hưng phấn (Bull run)',
       badgeClass: 'cycle-euphoria',
-      startSec: 40,
-      endSec: 95,
+      startSec: 70,
+      endSec: 160,
       description: 'Dòng tiền FOMO ồ ạt đổ vào, giá tăng vùn vụt!',
-      driftTRS: 0.0045,
-      driftLAN: 0.0120,
-      driftMEO: 0.0220,
-      volMultiplier: 1.5
+      driftTRS: 0.0055,
+      driftLAN: 0.0150,
+      driftMEO: 0.0280,
+      volMultiplier: 1.4
     },
     {
       id: 'bubble',
       name: 'Bong bóng & Đỉnh',
       badgeClass: 'cycle-bubble',
-      startSec: 95,
-      endSec: 130,
+      startSec: 160,
+      endSec: 225,
       description: 'Biến động giật gân, phân phối đỉnh, bẫy tăng giá!',
-      driftTRS: -0.0010,
-      driftLAN: -0.0035,
-      driftMEO: -0.0050,
+      driftTRS: -0.0012,
+      driftLAN: -0.0040,
+      driftMEO: -0.0065,
       volMultiplier: 2.2
     },
     {
       id: 'crash',
       name: 'Suy thoái & Hoảng loạn',
       badgeClass: 'cycle-crash',
-      startSec: 130,
-      endSec: 180,
+      startSec: 225,
+      endSec: 300,
       description: 'Bán tháo toàn diện, cá mập xả hàng, bắt đáy đứt tay!',
-      driftTRS: -0.0055,
-      driftLAN: -0.0145,
-      driftMEO: -0.0250,
+      driftTRS: -0.0065,
+      driftLAN: -0.0180,
+      driftMEO: -0.0320,
       volMultiplier: 1.8
     }
   ];
+
+  // Random utilities
+  function shuffleArray(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
 
   // Asset configurations (Calibrated natural variance per second)
   const ASSETS_CONFIG = {
@@ -105,218 +119,596 @@
     }
   };
 
-  // 3 DEDICATED NEWS CHANNELS: TRS, LAN, MEO & VĨ MÔ TOÀN SÀN (ALL)
-  const NEWS_CATALOG = [
-    // --- 1. TRS NEWS (10s) ---
+  // =========================================================================
+  // THƯ VIỆN TIN NÓNG KHỔNG LỒ (4 KHO TIN RIÊNG BIỆT - 52 TIN ĐA DẠNG)
+  // =========================================================================
+
+  // --- KHO 1: TIN RIÊNG CHO TRS (14 TIN) ---
+  const NEWS_POOL_TRS = [
     {
-      targetSec: 10,
       target: 'TRS',
       headline: "Bộ Y Tế chứng nhận: Uống trà sữa hợp lý giúp tăng chỉ số hưng phấn, kích cầu ngành F&B!",
-      source: "chinh_thong",
       sourceName: "BÁO CHÍNH THỐNG",
       trustText: "Tin cậy: Cao",
       trustClass: "trust-high",
       cardClass: "news-chinh-thong",
       icon: "🏛️",
-      impact: { asset: "TRS", factor: 0.016, ticks: 10 },
+      impact: { asset: "TRS", factor: 0.018, ticks: 10 },
       type: "bull"
     },
-
-    // --- 2. MEO NEWS (18s) ---
     {
-      targetSec: 18,
-      target: 'MEO',
-      headline: "Tỷ phú Mèo Mask đổi ảnh đại diện Twitter sang Mèo Béo đeo kính ngầu, cộng đồng quốc tế đổ xô fomo càn quét sàn!",
-      source: "chuyen_gia",
-      sourceName: "KOL QUỐC TẾ",
+      target: 'TRS',
+      headline: "TRS cán mốc doanh thu nghìn tỷ, khai trương thêm 200 điểm bán và chuẩn bị chia cổ tức bằng tiền mặt!",
+      sourceName: "BÁO CHÍNH THỐNG",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "🏛️",
+      impact: { asset: "TRS", factor: 0.026, ticks: 10 },
+      type: "bull"
+    },
+    {
+      target: 'TRS',
+      headline: "Trà sữa trân châu organic TRS đạt giải thưởng ẩm thực châu Á, đơn hàng xuất khẩu tăng đột biến 300%!",
+      sourceName: "BÁO CHÍNH THỐNG",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "🏆",
+      impact: { asset: "TRS", factor: 0.022, ticks: 10 },
+      type: "bull"
+    },
+    {
+      target: 'TRS',
+      headline: "Ca sĩ GenZ triệu view ký hợp đồng làm đại sứ thương hiệu TRS, giới trẻ xếp hàng dài từ sáng sớm để mua!",
+      sourceName: "KOL GIỚI TRẺ",
       trustText: "Tin cậy: Vừa",
       trustClass: "trust-medium",
       cardClass: "news-chuyen-gia",
-      icon: "🐱",
-      impact: { asset: "MEO", factor: 0.068, ticks: 10 },
+      icon: "🎤",
+      impact: { asset: "TRS", factor: 0.028, ticks: 8 },
+      type: "bull"
+    },
+    {
+      target: 'TRS',
+      headline: "Tin đồn: Tập đoàn bán lẻ đa quốc gia đàm phán mua lại 35% cổ phần TRS với giá cao hơn thị giá 40%!",
+      sourceName: "TIN ĐỒN M&A",
+      trustText: "Tin cậy: Thấp",
+      trustClass: "trust-low",
+      cardClass: "news-tin-don",
+      icon: "🤫",
+      impact: { asset: "TRS", factor: 0.035, ticks: 9 },
       type: "hot"
     },
-
-    // --- 3. LAN NEWS (25s) ---
     {
-      targetSec: 25,
-      target: 'LAN',
-      headline: "Chuyên gia vườn lan: 'Lan Var đã chiết khấu 75% từ đỉnh cũ, dòng tiền ngầm bắt đầu gom vùng đáy'.",
-      source: "chuyen_gia",
+      target: 'TRS',
+      headline: "Giá đường và bột sữa nhập khẩu giảm mạnh 25%, biên lợi nhuận ròng của chuỗi TRS lập đỉnh lịch sử!",
       sourceName: "CHUYÊN GIA",
       trustText: "Tin cậy: Vừa",
       trustClass: "trust-medium",
       cardClass: "news-chuyen-gia",
       icon: "🧐",
-      impact: { asset: "LAN", factor: 0.035, ticks: 10 },
+      impact: { asset: "TRS", factor: 0.020, ticks: 11 },
       type: "bull"
     },
-
-    // --- 4. VĨ MÔ TOÀN SÀN (42s) - HIỂN THỊ ĐỒNG LOẠT 3 KHUNG ---
     {
-      targetSec: 42,
-      target: 'ALL',
-      headline: "Ngân Hàng Nhà Nước bất ngờ hạ lãi suất điều hành, dòng tiền rẻ ồ ạt kích hoạt sóng tăng toàn sàn!",
-      source: "chinh_thong",
-      sourceName: "VĨ MÔ CHUNG",
-      trustText: "Tin cậy: Cao",
-      trustClass: "trust-high",
-      cardClass: "news-chinh-thong",
-      icon: "🏛️",
-      impact: { asset: "ALL", factor: 0.018, ticks: 12 },
-      type: "bull"
-    },
-
-    // --- 5. MEO NEWS (52s) ---
-    {
-      targetSec: 52,
-      target: 'MEO',
-      headline: "Sàn giao dịch Top 1 thông báo niêm yết MEO Futures với đòn bẩy x50, khối lượng giao dịch phái sinh bùng nổ 500%!",
-      source: "chinh_thong",
-      sourceName: "BÁO CHÍNH THỐNG",
-      trustText: "Tin cậy: Cao",
-      trustClass: "trust-high",
-      cardClass: "news-chinh-thong",
-      icon: "🚀",
-      impact: { asset: "MEO", factor: 0.075, ticks: 10 },
-      type: "bull"
-    },
-
-    // --- 6. TRS NEWS (62s) ---
-    {
-      targetSec: 62,
       target: 'TRS',
-      headline: "TRS cán mốc doanh thu nghìn tỷ, khai trương thêm 200 điểm bán và chuẩn bị chia cổ tức bằng tiền!",
-      source: "chinh_thong",
+      headline: "TRS ra mắt dòng trà sữa keto không đường, chiếm lĩnh phân khúc khách hàng văn phòng ăn kiêng!",
       sourceName: "BÁO CHÍNH THỐNG",
       trustText: "Tin cậy: Cao",
       trustClass: "trust-high",
       cardClass: "news-chinh-thong",
-      icon: "🏛️",
-      impact: { asset: "TRS", factor: 0.025, ticks: 10 },
+      icon: "☕",
+      impact: { asset: "TRS", factor: 0.016, ticks: 10 },
       type: "bull"
     },
-
-    // --- 7. LAN NEWS (80s) ---
     {
-      targetSec: 80,
-      target: 'LAN',
-      headline: "Rò rỉ nhóm VIP: Tay to gom 20 tỷ Lan Var 5 Cánh Trắng, chuẩn bị kéo x3 giá bán trước hội chợ xuân!",
-      source: "tin_don",
-      sourceName: "TIN ĐỒN TAY TO",
-      trustText: "Tin cậy: Thấp - Cực sốc",
-      trustClass: "trust-low",
-      cardClass: "news-tin-don",
-      icon: "🤫",
-      impact: { asset: "LAN", factor: 0.065, ticks: 11 },
-      type: "hot"
+      target: 'TRS',
+      headline: "Đề xuất áp thuế tiêu thụ đặc biệt 10% lên đồ uống có đường, cổ phiếu ngành trà sữa chịu áp lực bán nhẹ.",
+      sourceName: "BÁO CHÍNH THỐNG",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "📉",
+      impact: { asset: "TRS", factor: -0.015, ticks: 10 },
+      type: "bear"
     },
-
-    // --- 8. VĨ MÔ TOÀN SÀN (96s) - HIỂN THỊ ĐỒNG LOẠT 3 KHUNG ---
     {
-      targetSec: 96,
-      target: 'ALL',
-      headline: "Chuyên gia tài chính cảnh báo: Thị trường bước vào vùng bong bóng đầu cơ cực đại, rủi ro đảo chiều!",
-      source: "chuyen_gia",
-      sourceName: "VĨ MÔ CHUNG",
+      target: 'TRS',
+      headline: "Thời tiết rét đậm kéo dài bất thường, doanh số chuỗi đồ uống giải khát TRS sụt giảm cục bộ.",
+      sourceName: "CHUYÊN GIA",
+      trustText: "Tin cậy: Vừa",
+      trustClass: "trust-medium",
+      cardClass: "news-chuyen-gia",
+      icon: "❄️",
+      impact: { asset: "TRS", factor: -0.012, ticks: 10 },
+      type: "bear"
+    },
+    {
+      target: 'TRS',
+      headline: "Báo cáo nội bộ: TRS đóng cửa 15 cửa hàng hoạt động kém hiệu quả để tối ưu hóa chi phí vận hành.",
+      sourceName: "CHUYÊN GIA",
       trustText: "Tin cậy: Vừa",
       trustClass: "trust-medium",
       cardClass: "news-chuyen-gia",
       icon: "🧐",
-      impact: { asset: "ALL", factor: -0.012, ticks: 10 },
-      type: "danger"
+      impact: { asset: "TRS", factor: -0.018, ticks: 9 },
+      type: "bear"
     },
-
-    // --- 9. MEO NEWS - BẪY PUMP & DUMP (104s) ---
     {
-      targetSec: 104,
-      target: 'MEO',
-      headline: "Bẫy Pump & Dump MEO: Cá mập tạo volume ảo đẩy giá lên mây rồi âm thầm xả 40 tỷ coin vào đầu F0 đu đỉnh!",
-      source: "tin_don",
-      sourceName: "PUMP & DUMP",
-      trustText: "Tin cậy: Thấp - Nguy hiểm",
+      target: 'TRS',
+      headline: "Tin đồn: Nghi vấn nguồn nguyên liệu trân châu nhập lậu tại một đại lý nhượng quyền, F0 xả hàng tháo chạy!",
+      sourceName: "TIN ĐỒN THẤT THIỆT",
+      trustText: "Tin cậy: Thấp",
       trustClass: "trust-low",
       cardClass: "news-tin-don",
       icon: "⚠️",
-      // Trap: kéo nhẹ 4 giây rồi sập sâu 12 giây
-      impact: { asset: "MEO", factor: 0.080, ticks: 4, postDump: -0.095 },
-      type: "hot"
+      impact: { asset: "TRS", factor: -0.028, ticks: 9 },
+      type: "danger"
     },
-
-    // --- 10. LAN NEWS - BẪY PUMP & DUMP (114s) ---
     {
-      targetSec: 114,
-      target: 'LAN',
-      headline: "Đội lái hô hào: 'LAN sắp lên 1 triệu/kie, không tất tay là lỡ cơ hội đổi đời!' - Bẫy xả phân phối đỉnh!",
-      source: "tin_don",
-      sourceName: "PUMP & DUMP",
-      trustText: "Tin cậy: Thấp - Nguy hiểm",
-      trustClass: "trust-low",
-      cardClass: "news-tin-don",
-      icon: "🤫",
-      // Trap: kéo nhẹ 4 giây rồi sập sâu 8 giây
-      impact: { asset: "LAN", factor: 0.045, ticks: 4, postDump: -0.055 },
-      type: "hot"
-    },
-
-    // --- 11. LAN NEWS - SẬP HẦM (135s) ---
-    {
-      targetSec: 135,
-      target: 'LAN',
-      headline: "Bộ Công An khởi tố đường dây thổi giá Lan Var ảo tiền tỷ, phong tỏa tài khoản hàng loạt đại gia!",
-      source: "chinh_thong",
+      target: 'TRS',
+      headline: "Quỹ đầu tư nội địa chốt lời 5 triệu cổ phiếu TRS sau chuỗi ngày tăng nóng để tái cơ cấu danh mục!",
       sourceName: "BÁO CHÍNH THỐNG",
       trustText: "Tin cậy: Cao",
       trustClass: "trust-high",
       cardClass: "news-chinh-thong",
-      icon: "🏛️",
-      impact: { asset: "LAN", factor: -0.075, ticks: 12 },
-      type: "danger"
+      icon: "📉",
+      impact: { asset: "TRS", factor: -0.022, ticks: 10 },
+      type: "bear"
     },
-
-    // --- 12. MEO NEWS - RUG PULL (142s) ---
     {
-      targetSec: 142,
-      target: 'MEO',
-      headline: "Đội Dev MEO âm thầm rút sạch thanh khoản (Rug-pull), xóa kênh chat, hàng nghìn nhà đầu tư khóc ròng!",
-      source: "chinh_thong",
-      sourceName: "CẢNH BÁO KHẨN",
-      trustText: "Tin cậy: Cao",
-      trustClass: "trust-high",
-      cardClass: "news-chinh-thong",
-      icon: "💀",
-      impact: { asset: "MEO", factor: -0.120, ticks: 12 },
-      type: "danger"
-    },
-
-    // --- 13. VĨ MÔ TOÀN SÀN (152s) - TĂNG LÃI SUẤT & PHÍ VAY VỌT TĂNG ---
-    {
-      targetSec: 152,
-      target: 'ALL',
-      headline: "Lãi suất liên ngân hàng tăng sốc! Ngân hàng siết tín dụng, lãi vay đòn bẩy margin tăng vọt lên 0.20%/s!",
-      source: "chinh_thong",
-      sourceName: "VĨ MÔ CHUNG",
-      trustText: "Tin cậy: Cao",
-      trustClass: "trust-high",
-      cardClass: "news-chinh-thong",
-      icon: "🏛️",
-      impact: { asset: "ALL", factor: -0.035, ticks: 12 },
-      type: "danger"
-    },
-
-    // --- 14. TRS NEWS (168s) ---
-    {
-      targetSec: 168,
       target: 'TRS',
       headline: "Tin đồn: Quỹ ngoại âm thầm giải ngân bắt đáy TRS vùng quá bán, xuất hiện lực cầu đỡ giá phút chót!",
-      source: "tin_don",
       sourceName: "TIN ĐỒN HỘI NHÓM",
       trustText: "Tin cậy: Thấp",
       trustClass: "trust-low",
       cardClass: "news-tin-don",
       icon: "🤫",
-      impact: { asset: "TRS", factor: 0.025, ticks: 9 },
+      impact: { asset: "TRS", factor: 0.025, ticks: 10 },
       type: "bull"
+    },
+    {
+      target: 'TRS',
+      headline: "TRS công bố hợp tác độc quyền với ứng dụng giao đồ ăn số 1, khuyến mại khủng kích nổ 500.000 đơn/ngày!",
+      sourceName: "BÁO CHÍNH THỐNG",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "🚀",
+      impact: { asset: "TRS", factor: 0.030, ticks: 10 },
+      type: "bull"
+    }
+  ];
+
+  // --- KHO 2: TIN RIÊNG CHO LAN (14 TIN) ---
+  const NEWS_POOL_LAN = [
+    {
+      target: 'LAN',
+      headline: "Chuyên gia vườn lan: 'Lan Var đã chiết khấu 75% từ đỉnh cũ, dòng tiền ngầm bắt đầu gom vùng đáy'.",
+      sourceName: "CHUYÊN GIA",
+      trustText: "Tin cậy: Vừa",
+      trustClass: "trust-medium",
+      cardClass: "news-chuyen-gia",
+      icon: "🧐",
+      impact: { asset: "LAN", factor: 0.038, ticks: 10 },
+      type: "bull"
+    },
+    {
+      target: 'LAN',
+      headline: "Giao dịch lan Bạch Tuyết 5 cánh trắng trị giá 12 tỷ đồng vừa được livestream trực tiếp trước hàng vạn người!",
+      sourceName: "KOL VƯỜN LAN",
+      trustText: "Tin cậy: Vừa",
+      trustClass: "trust-medium",
+      cardClass: "news-chuyen-gia",
+      icon: "🌸",
+      impact: { asset: "LAN", factor: 0.050, ticks: 9 },
+      type: "bull"
+    },
+    {
+      target: 'LAN',
+      headline: "Đại gia bất động sản thắng lớn dự án, quyết định trích 50 tỷ gom sạch các chậu lan đột biến quý hiếm!",
+      sourceName: "TIN ĐỒN TAY TO",
+      trustText: "Tin cậy: Thấp",
+      trustClass: "trust-low",
+      cardClass: "news-tin-don",
+      icon: "💰",
+      impact: { asset: "LAN", factor: 0.055, ticks: 9 },
+      type: "bull"
+    },
+    {
+      target: 'LAN',
+      headline: "Viện Hàn lâm Sinh học công nhận đột biến gien tự nhiên của Lan Var, bảo chứng giá trị sưu tầm lâu dài!",
+      sourceName: "BÁO CHÍNH THỐNG",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "🏛️",
+      impact: { asset: "LAN", factor: 0.042, ticks: 10 },
+      type: "bull"
+    },
+    {
+      target: 'LAN',
+      headline: "Rò rỉ nhóm VIP: Tay to gom 20 tỷ Lan Var 5 Cánh Trắng, chuẩn bị kéo x3 giá bán trước triển lãm sinh vật cảnh!",
+      sourceName: "TIN ĐỒN TAY TO",
+      trustText: "Tin cậy: Thấp - Cực sốc",
+      trustClass: "trust-low",
+      cardClass: "news-tin-don",
+      icon: "🤫",
+      impact: { asset: "LAN", factor: 0.070, ticks: 10 },
+      type: "hot"
+    },
+    {
+      target: 'LAN',
+      headline: "Đội lái hô hào: 'LAN sắp lên 1 triệu/kie, không tất tay là lỡ cơ hội đổi đời!' - Bẫy xả phân phối đỉnh!",
+      sourceName: "PUMP & DUMP",
+      trustText: "Tin cậy: Thấp - Nguy hiểm",
+      trustClass: "trust-low",
+      cardClass: "news-tin-don",
+      icon: "🤫",
+      impact: { asset: "LAN", factor: 0.050, ticks: 4, postDump: -0.065 },
+      type: "hot"
+    },
+    {
+      target: 'LAN',
+      headline: "Phát hiện hợp đồng mua bán lan đột biến tiền tỷ thực chất chỉ là hợp đồng giả tạo để lùa gà sang tay!",
+      sourceName: "CẢNH BÁO KHẨN",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "⚠️",
+      impact: { asset: "LAN", factor: -0.055, ticks: 10 },
+      type: "danger"
+    },
+    {
+      target: 'LAN',
+      headline: "Bộ Công An khởi tố đường dây thổi giá Lan Var ảo tiền tỷ, phong tỏa tài khoản hàng loạt đại gia!",
+      sourceName: "BÁO CHÍNH THỐNG",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "🏛️",
+      impact: { asset: "LAN", factor: -0.080, ticks: 12 },
+      type: "danger"
+    },
+    {
+      target: 'LAN',
+      headline: "Công nghệ cấy mô phòng thí nghiệm nhân giống lan hàng loạt thành công, nguy cơ Lan Đột Biến mất trắng giá trị!",
+      sourceName: "BÁO CHÍNH THỐNG",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "🧪",
+      impact: { asset: "LAN", factor: -0.065, ticks: 11 },
+      type: "danger"
+    },
+    {
+      target: 'LAN',
+      headline: "Hàng loạt 'chủ vườn lan' vỡ nợ bỏ trốn trong đêm, thị trường thứ cấp hoảng loạn bán tháo cắt lỗ -60%!",
+      sourceName: "CẢNH BÁO KHẨN",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "💀",
+      impact: { asset: "LAN", factor: -0.090, ticks: 12 },
+      type: "danger"
+    },
+    {
+      target: 'LAN',
+      headline: "Nghệ nhân kỳ cựu: 'Cơn sốt lan đã tạo đỉnh bong bóng, người mua sau cùng sẽ ôm mớ củi khô giá triệu đô'.",
+      sourceName: "CHUYÊN GIA",
+      trustText: "Tin cậy: Vừa",
+      trustClass: "trust-medium",
+      cardClass: "news-chuyen-gia",
+      icon: "🧐",
+      impact: { asset: "LAN", factor: -0.045, ticks: 9 },
+      type: "bear"
+    },
+    {
+      target: 'LAN',
+      headline: "Cục Thuế tổng kiểm tra nghĩa vụ thuế các giao dịch chuyển nhượng lan tiền tỷ, thanh khoản sàn đóng băng!",
+      sourceName: "BÁO CHÍNH THỐNG",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "🏛️",
+      impact: { asset: "LAN", factor: -0.040, ticks: 10 },
+      type: "bear"
+    },
+    {
+      target: 'LAN',
+      headline: "Nhóm cá mập bất ngờ xuất hiện 'quét sàn' gom sạch các giò lan đẹp bị bán tháo ép giá rẻ như cho!",
+      sourceName: "TIN ĐỒN TAY TO",
+      trustText: "Tin cậy: Thấp",
+      trustClass: "trust-low",
+      cardClass: "news-tin-don",
+      icon: "🤫",
+      impact: { asset: "LAN", factor: 0.045, ticks: 9 },
+      type: "bull"
+    },
+    {
+      target: 'LAN',
+      headline: "Triển lãm Sinh vật cảnh Quốc tế trao huy chương vàng cho Lan Đột Biến Việt Nam, kích thích dòng tiền quay lại!",
+      sourceName: "BÁO CHÍNH THỐNG",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "🏆",
+      impact: { asset: "LAN", factor: 0.038, ticks: 10 },
+      type: "bull"
+    }
+  ];
+
+  // --- KHO 3: TIN RIÊNG CHO MEO (14 TIN) ---
+  const NEWS_POOL_MEO = [
+    {
+      target: 'MEO',
+      headline: "Tỷ phú Mèo Mask đổi ảnh đại diện Twitter sang Mèo Béo đeo kính ngầu, cộng đồng quốc tế đổ xô fomo càn quét sàn!",
+      sourceName: "KOL QUỐC TẾ",
+      trustText: "Tin cậy: Vừa",
+      trustClass: "trust-medium",
+      cardClass: "news-chuyen-gia",
+      icon: "🐱",
+      impact: { asset: "MEO", factor: 0.075, ticks: 10 },
+      type: "hot"
+    },
+    {
+      target: 'MEO',
+      headline: "Sàn giao dịch Top 1 thông báo niêm yết MEO Futures với đòn bẩy x50, khối lượng giao dịch phái sinh bùng nổ 500%!",
+      sourceName: "BÁO CHÍNH THỐNG",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "🚀",
+      impact: { asset: "MEO", factor: 0.082, ticks: 10 },
+      type: "bull"
+    },
+    {
+      target: 'MEO',
+      headline: "Trào lưu nuôi 'Mèo Béo Web3' viral toàn cầu trên TikTok, hơn 2 triệu ví mới được tạo chỉ sau 24 giờ!",
+      sourceName: "MẠNG XÃ HỘI",
+      trustText: "Tin cậy: Vừa",
+      trustClass: "trust-medium",
+      cardClass: "news-chuyen-gia",
+      icon: "📱",
+      impact: { asset: "MEO", factor: 0.065, ticks: 9 },
+      type: "bull"
+    },
+    {
+      target: 'MEO',
+      headline: "Ví cá voi bí ẩn vừa chuyển 50 triệu USDT lên sàn mua trọn 20% tổng cung lưu hành của MEO!",
+      sourceName: "DỮ LIỆU ON-CHAIN",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "🐳",
+      impact: { asset: "MEO", factor: 0.070, ticks: 9 },
+      type: "bull"
+    },
+    {
+      target: 'MEO',
+      headline: "Đội ngũ phát triển thông báo đốt vĩnh viễn 30% tổng cung MEO để chống lạm phát, tạo hiệu ứng khan hiếm tột độ!",
+      sourceName: "BÁO CHÍNH THỐNG",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "🔥",
+      impact: { asset: "MEO", factor: 0.085, ticks: 10 },
+      type: "bull"
+    },
+    {
+      target: 'MEO',
+      headline: "Mèo Mask tweet: 'Mèo Béo có thể sẽ trở thành phương tiện thanh toán cho trạm sạc xe điện tiếp theo'.",
+      sourceName: "KOL QUỐC TẾ",
+      trustText: "Tin cậy: Vừa",
+      trustClass: "trust-medium",
+      cardClass: "news-chuyen-gia",
+      icon: "⚡",
+      impact: { asset: "MEO", factor: 0.078, ticks: 9 },
+      type: "hot"
+    },
+    {
+      target: 'MEO',
+      headline: "Bẫy Pump & Dump MEO: Cá mập tạo volume ảo đẩy giá lên mây rồi âm thầm xả 40 tỷ coin vào đầu F0 đu đỉnh!",
+      sourceName: "PUMP & DUMP",
+      trustText: "Tin cậy: Thấp - Nguy hiểm",
+      trustClass: "trust-low",
+      cardClass: "news-tin-don",
+      icon: "⚠️",
+      impact: { asset: "MEO", factor: 0.085, ticks: 4, postDump: -0.105 },
+      type: "hot"
+    },
+    {
+      target: 'MEO',
+      headline: "Tin đồn: Hợp đồng thông minh của MEO có backdoor, nguy cơ bị hacker bòn rút thanh khoản!",
+      sourceName: "TIN ĐỒN DEV",
+      trustText: "Tin cậy: Thấp",
+      trustClass: "trust-low",
+      cardClass: "news-tin-don",
+      icon: "🤫",
+      impact: { asset: "MEO", factor: -0.065, ticks: 9 },
+      type: "danger"
+    },
+    {
+      target: 'MEO',
+      headline: "Đội Dev MEO âm thầm rút sạch thanh khoản (Rug-pull), xóa kênh chat, hàng nghìn nhà đầu tư khóc ròng!",
+      sourceName: "CẢNH BÁO KHẨN",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "💀",
+      impact: { asset: "MEO", factor: -0.130, ticks: 12 },
+      type: "danger"
+    },
+    {
+      target: 'MEO',
+      headline: "Cảnh báo bảo mật: Phát hiện mã độc xâm nhập bot giao dịch tự động của MEO, người dùng hoảng loạn tháo chạy!",
+      sourceName: "BÁO CHÍNH THỐNG",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "🚨",
+      impact: { asset: "MEO", factor: -0.075, ticks: 10 },
+      type: "danger"
+    },
+    {
+      target: 'MEO',
+      headline: "Ủy Ban Chứng Khoán Quốc Tế mở cuộc điều tra diện rộng các đồng Meme Coin có dấu hiệu thao túng giá như MEO.",
+      sourceName: "BÁO CHÍNH THỐNG",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "🏛️",
+      impact: { asset: "MEO", factor: -0.060, ticks: 10 },
+      type: "bear"
+    },
+    {
+      target: 'MEO',
+      headline: "Hacker tấn công cầu nối thanh khoản MEO, đánh cắp 8.000 ETH khiến giá coin lao dốc không phanh!",
+      sourceName: "BÁO CHÍNH THỐNG",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "💥",
+      impact: { asset: "MEO", factor: -0.095, ticks: 11 },
+      type: "danger"
+    },
+    {
+      target: 'MEO',
+      headline: "Cộng đồng thâu tóm lại dự án MEO (Community Takeover), quỹ cứu trợ gom sạch lượng coin bị xả đáy!",
+      sourceName: "CỘNG ĐỒNG ON-CHAIN",
+      trustText: "Tin cậy: Vừa",
+      trustClass: "trust-medium",
+      cardClass: "news-chuyen-gia",
+      icon: "🛡️",
+      impact: { asset: "MEO", factor: 0.060, ticks: 9 },
+      type: "bull"
+    },
+    {
+      target: 'MEO',
+      headline: "Tỷ phú Mèo Mask đăng meme 'Mèo Béo lên Mặt Trăng' kèm biểu tượng tên lửa, kích hoạt làn sóng gom hàng thứ hai!",
+      sourceName: "KOL QUỐC TẾ",
+      trustText: "Tin cậy: Vừa",
+      trustClass: "trust-medium",
+      cardClass: "news-chuyen-gia",
+      icon: "🚀",
+      impact: { asset: "MEO", factor: 0.088, ticks: 10 },
+      type: "hot"
+    }
+  ];
+
+  // --- KHO 4: TIN VĨ MÔ TOÀN THỊ TRƯỜNG (10 TIN - ẢNH HƯỞNG CẢ 3 MÃ) ---
+  const NEWS_POOL_MACRO = [
+    {
+      target: 'ALL',
+      headline: "Ngân Hàng Trung Ương bất ngờ hạ lãi suất điều hành 0.5%, dòng tiền rẻ ồ ạt kích hoạt sóng tăng toàn sàn!",
+      sourceName: "VĨ MÔ CHUNG",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "🏛️",
+      impact: { asset: "ALL", factor: 0.022, ticks: 12 },
+      type: "bull"
+    },
+    {
+      target: 'ALL',
+      headline: "Chỉ số CPI lạm phát tháng này hạ nhiệt kỷ lục, niềm tin người tiêu dùng và giới đầu tư phục hồi mạnh mẽ!",
+      sourceName: "VĨ MÔ CHUNG",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "📈",
+      impact: { asset: "ALL", factor: 0.018, ticks: 12 },
+      type: "bull"
+    },
+    {
+      target: 'ALL',
+      headline: "Dòng vốn ngoại FDI và FII giải ngân kỷ lục vào thị trường, thanh khoản toàn sàn tăng vọt 80%!",
+      sourceName: "VĨ MÔ CHUNG",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "💰",
+      impact: { asset: "ALL", factor: 0.020, ticks: 12 },
+      type: "bull"
+    },
+    {
+      target: 'ALL',
+      headline: "Chính phủ ban hành gói kích cầu kinh tế 100.000 tỷ đồng, hỗ trợ doanh nghiệp và thúc đẩy tiêu dùng nội địa!",
+      sourceName: "VĨ MÔ CHUNG",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "🏛️",
+      impact: { asset: "ALL", factor: 0.025, ticks: 12 },
+      type: "bull"
+    },
+    {
+      target: 'ALL',
+      headline: "Chuyên gia tài chính cảnh báo: Thị trường bước vào vùng bong bóng đầu cơ cực đại, rủi ro đảo chiều bất ngờ!",
+      sourceName: "VĨ MÔ CHUNG",
+      trustText: "Tin cậy: Vừa",
+      trustClass: "trust-medium",
+      cardClass: "news-chuyen-gia",
+      icon: "🧐",
+      impact: { asset: "ALL", factor: -0.015, ticks: 11 },
+      type: "danger"
+    },
+    {
+      target: 'ALL',
+      headline: "Căng thẳng địa chính trị đẩy giá dầu thế giới tăng vọt, nguy cơ lạm phát đình trệ (stagflation) bao trùm!",
+      sourceName: "VĨ MÔ CHUNG",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "⚠️",
+      impact: { asset: "ALL", factor: -0.022, ticks: 12 },
+      type: "danger"
+    },
+    {
+      target: 'ALL',
+      headline: "Ngân hàng Trung Ương siết van tín dụng, kiểm soát chặt dòng tiền chảy vào các kênh đầu cơ rủi ro cao!",
+      sourceName: "VĨ MÔ CHUNG",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "📉",
+      impact: { asset: "ALL", factor: -0.025, ticks: 12 },
+      type: "danger"
+    },
+    {
+      target: 'ALL',
+      headline: "Lãi suất liên ngân hàng tăng sốc! Ngân hàng siết tín dụng, lãi vay đòn bẩy margin tăng vọt lên 0.20%/s!",
+      sourceName: "VĨ MÔ CHUNG",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "🏛️",
+      isHike: true,
+      impact: { asset: "ALL", factor: -0.038, ticks: 12 },
+      type: "danger"
+    },
+    {
+      target: 'ALL',
+      headline: "Khối ngoại bất ngờ quay lại mua ròng nghìn tỷ sau chuỗi ngày bán ròng miệt mài, thị trường xuất hiện nến rút chân!",
+      sourceName: "VĨ MÔ CHUNG",
+      trustText: "Tin cậy: Vừa",
+      trustClass: "trust-medium",
+      cardClass: "news-chuyen-gia",
+      icon: "📈",
+      impact: { asset: "ALL", factor: 0.020, ticks: 11 },
+      type: "bull"
+    },
+    {
+      target: 'ALL',
+      headline: "Ủy Ban Giám Sát Tài Chính công bố gói thanh tra các tổ chức tài chính dùng đòn bẩy quá mức cho phép!",
+      sourceName: "VĨ MÔ CHUNG",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "🏛️",
+      impact: { asset: "ALL", factor: -0.028, ticks: 12 },
+      type: "danger"
     }
   ];
 
@@ -565,7 +957,9 @@
 
       // Active News tracking
       this.pendingNews = []; // News waiting for 4.5s delay
-      this.triggeredNewsSet = new Set();
+      this.shuffledNews = { TRS: [], LAN: [], MEO: [], MACRO: [] };
+      this.newsIndex = { TRS: 0, LAN: 0, MEO: 0, MACRO: 0 };
+      this.nextNewsSec = { TRS: 0, LAN: 0, MEO: 0, MACRO: 0 };
     }
 
     reset() {
@@ -621,7 +1015,9 @@
       };
 
       this.pendingNews = [];
-      this.triggeredNewsSet.clear();
+      this.shuffledNews = { TRS: [], LAN: [], MEO: [], MACRO: [] };
+      this.newsIndex = { TRS: 0, LAN: 0, MEO: 0, MACRO: 0 };
+      this.nextNewsSec = { TRS: 0, LAN: 0, MEO: 0, MACRO: 0 };
     }
 
     getCurrentPhase() {
@@ -786,8 +1182,8 @@
       const chartW = this.width - padding.left - padding.right;
       const chartH = this.height - padding.top - padding.bottom;
 
-      // Determine viewport window: Show up to 150 recent ticks or stretch from start
-      const visibleWindow = Math.min(len, 180);
+      // Determine viewport window: Show full 5-minute match (~223 ticks)
+      const visibleWindow = Math.min(len, 250);
       const startIndex = Math.max(0, len - visibleWindow);
       const visiblePrices = prices.slice(startIndex);
 
@@ -1358,7 +1754,24 @@
       this.chart.render();
     }
 
+    initNewsSchedule() {
+      this.state.shuffledNews = {
+        TRS: shuffleArray(NEWS_POOL_TRS),
+        LAN: shuffleArray(NEWS_POOL_LAN),
+        MEO: shuffleArray(NEWS_POOL_MEO),
+        MACRO: shuffleArray(NEWS_POOL_MACRO)
+      };
+      this.state.newsIndex = { TRS: 0, LAN: 0, MEO: 0, MACRO: 0 };
+      this.state.nextNewsSec = {
+        TRS: getRandomInt(10, 16),
+        LAN: getRandomInt(13, 20),
+        MEO: getRandomInt(15, 23),
+        MACRO: getRandomInt(35, 48)
+      };
+    }
+
     startSession() {
+      this.initNewsSchedule();
       this.state.isRunning = true;
       this.state.timerInterval = setInterval(() => {
         this.onTick();
@@ -1367,13 +1780,15 @@
 
     onTick() {
       this.state.currentTick++;
-      this.state.currentSec = this.state.currentTick; // 1 tick = 1 giây chuẩn 1000ms
+      // Đổi giây theo tỷ lệ tick rate 1350ms (1.35s / tick)
+      this.state.currentSec = Math.min(GAME_DURATION_SEC, Math.round(this.state.currentTick * (TICK_INTERVAL_MS / 1000)));
 
       // 1. Tính lãi vay nếu đang có nợ đòn bẩy
       const totalDebt = this.state.getTotalDebt();
       if (totalDebt > 0 && !this.state.isLiquidated) {
         const ratePerSec = this.state.isInterestHiked ? 0.0020 : 0.0005; // 0.20%/s khi vĩ mô tăng, bình thường 0.05%/s
-        const interest = Math.round(totalDebt * ratePerSec);
+        const tickSec = TICK_INTERVAL_MS / 1000;
+        const interest = Math.round(totalDebt * ratePerSec * tickSec);
         this.state.totalInterestPaid += interest;
         this.state.cash -= interest;
       }
@@ -1409,8 +1824,8 @@
       this.chart.render();
       this.updateUI();
 
-      // 6. Kiểm tra hết giờ (180 giây = 180 ticks)
-      if (this.state.currentTick >= TOTAL_TICKS) {
+      // 6. Kiểm tra hết giờ (300 giây)
+      if (this.state.currentSec >= GAME_DURATION_SEC || this.state.currentTick >= TOTAL_TICKS) {
         this.endSession();
       }
     }
@@ -1470,23 +1885,62 @@
         this.dom.spectatorBanner.style.display = 'flex';
       }
       this.disableTradingButtons();
-      this.showToast('👀 Đang ở chế độ Khán Giả. Hãy quan sát thị trường diễn biến đến hết 180s!', 'warn');
+      this.showToast('👀 Đang ở chế độ Khán Giả. Hãy quan sát thị trường diễn biến đến hết 5 phút!', 'warn');
     }
 
-    // Kiểm tra và đẩy tin tức vào hàng chờ
+    // Kiểm tra và đẩy tin tức vào hàng chờ với chu kỳ ngẫu nhiên độc lập
     checkNewsTriggers() {
       const curSec = this.state.currentSec;
-      NEWS_CATALOG.forEach(item => {
-        if (item.targetSec === curSec && !this.state.triggeredNewsSet.has(item.targetSec)) {
-          this.state.triggeredNewsSet.add(item.targetSec);
+      if (curSec <= 0 || curSec >= GAME_DURATION_SEC - 8) return;
+
+      // 1. Kiểm tra tin riêng của từng mã: TRS, LAN, MEO (nổ ngẫu nhiên 12 - 22s)
+      ['TRS', 'LAN', 'MEO'].forEach(ticker => {
+        if (curSec >= this.state.nextNewsSec[ticker]) {
+          const pool = this.state.shuffledNews[ticker];
+          let idx = this.state.newsIndex[ticker];
+          if (!pool || idx >= pool.length) {
+            this.state.shuffledNews[ticker] = shuffleArray(ticker === 'TRS' ? NEWS_POOL_TRS : (ticker === 'LAN' ? NEWS_POOL_LAN : NEWS_POOL_MEO));
+            this.state.newsIndex[ticker] = 0;
+            idx = 0;
+          }
+          const item = this.state.shuffledNews[ticker][idx];
+          this.state.newsIndex[ticker]++;
           this.queueNews(item);
+
+          // Lên lịch tin riêng tiếp theo sau 12 - 22 giây
+          this.state.nextNewsSec[ticker] = curSec + getRandomInt(12, 22);
         }
       });
+
+      // 2. Kiểm tra tin Vĩ mô toàn sàn (nổ ngẫu nhiên 35 - 50s)
+      if (curSec >= this.state.nextNewsSec.MACRO) {
+        const pool = this.state.shuffledNews.MACRO;
+        let idx = this.state.newsIndex.MACRO;
+        if (!pool || idx >= pool.length) {
+          this.state.shuffledNews.MACRO = shuffleArray(NEWS_POOL_MACRO);
+          this.state.newsIndex.MACRO = 0;
+          idx = 0;
+        }
+        const item = this.state.shuffledNews.MACRO[idx];
+        this.state.newsIndex.MACRO++;
+        this.queueNews(item);
+
+        // Lên lịch tin Vĩ mô tiếp theo sau 35 - 50 giây
+        this.state.nextNewsSec.MACRO = curSec + getRandomInt(35, 50);
+      }
     }
 
     // Đẩy tin tức lên 3 khung riêng biệt (TRS / LAN / MEO) hoặc đồng loạt cả 3 khi có tin Vĩ mô
     queueNews(newsItem) {
       this.state.sound.playNews();
+
+      const target = newsItem.target;
+
+      // Xóa tin chờ cũ của mã tương ứng để tránh xung đột đồng hồ đếm ngược
+      this.state.pendingNews = this.state.pendingNews.filter(p => {
+        if (target === 'ALL') return false;
+        return p.target !== target && p.target !== 'ALL';
+      });
 
       const startTime = Date.now();
       const newsObject = {
@@ -1496,8 +1950,6 @@
         applied: false
       };
       this.state.pendingNews.push(newsObject);
-
-      const target = newsItem.target;
 
       const renderCard = (cardEl, iconEl, srcEl, trustEl, countdownEl, headlineEl, fillEl, isMacro) => {
         if (!cardEl) return;
@@ -1542,9 +1994,12 @@
         renderCard(this.dom.newsCardMEO, this.dom.newsIconMEO, this.dom.newsSourceMEO, this.dom.newsTrustMEO, this.dom.newsCountdownMEO, this.dom.newsHeadlineMEO, this.dom.newsFillMEO, true);
         this.state.sound.playCrash();
 
-        if (newsItem.targetSec === 152) {
+        if (newsItem.isHike) {
           this.state.isInterestHiked = true;
-          this.showToast(`🚨 LÃI SUẤT TĂNG VỌT! Lãi vay đòn bẩy tăng vọt gấp 4 lần (0.20%/s)!`, 'danger');
+          this.showToast(`🚨 LÃI SUẤT TĂNG VỌT! Lãi vay đòn bẩy tăng vọt lên 0.20%/s!`, 'danger');
+        } else if (newsItem.headline.includes('hạ lãi suất') || newsItem.headline.includes('gói kích cầu')) {
+          this.state.isInterestHiked = false;
+          this.showToast(`🚨 TIN VĨ MÔ TOÀN SÀN: Ảnh hưởng toàn bộ thị trường! (Tác động sau 4.5s)`, 'info');
         } else {
           this.showToast(`🚨 TIN VĨ MÔ TOÀN SÀN: Ảnh hưởng toàn bộ thị trường! (Tác động sau 4.5s)`, 'danger');
         }
@@ -2076,7 +2531,7 @@
     shareResult() {
       const { pct, netWorth } = this.state.getPnl();
       const rank = evaluateRank(pct, this.state.isLiquidated);
-      const text = `🏆 [ĐỈNH HAY ĐÁY?] Vừa kết thúc phiên giao dịch 180s:\n` +
+      const text = `🏆 [ĐỈNH HAY ĐÁY?] Vừa kết thúc phiên giao dịch 5 phút (300s):\n` +
         `• Danh hiệu: ${rank.icon} ${rank.title}\n` +
         `• Tổng tài sản: ${formatNumber(netWorth)} VNĐ (${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%)\n` +
         `• Số lệnh: ${this.state.totalTrades} lệnh\n` +
