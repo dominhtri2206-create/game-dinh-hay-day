@@ -67,188 +67,202 @@
       </div>
     </header>
 
-    <!-- BREAKING NEWS CONTAINER (2 DEDICATED CARDS: TRS & LAN) -->
-    <section class="news-duo-wrapper">
-      <!-- KHUNG 1: TIN NÓNG TRS (TRÀ SỮA) -->
-      <div class="news-card news-chinh-thong" id="newsCardTRS">
-        <div class="news-meta-row">
-          <div class="news-asset-badge trs-tag">TRS • TRÀ SỮA</div>
-          <div class="news-source-badge" id="newsSourceTagTRS">
-            <span class="news-icon" id="newsIconTRS">🏛️</span>
-            <span class="news-source-name" id="newsSourceTRS">CHÍNH THỐNG</span>
-            <span class="news-trust-badge trust-high" id="newsTrustTRS">Tin cậy: Cao</span>
-          </div>
-          <div class="news-countdown-badge" id="newsTimerTRS">
-            <span class="timer-dot"></span>
-            <span class="impact-time-left" id="newsCountdownTRS">--</span>
-          </div>
-        </div>
-
-        <div class="news-content-box">
-          <p class="news-headline" id="newsHeadlineTRS">Chưa có tin mới cho TRS. Thị trường đang mở cửa thăm dò.</p>
-        </div>
-
-        <div class="news-progress-track">
-          <div class="news-progress-fill" id="newsFillTRS" style="width: 0%;"></div>
-        </div>
-      </div>
-
-      <!-- KHUNG 2: TIN NÓNG LAN (LAN ĐỘT BIẾN) -->
-      <div class="news-card news-chinh-thong" id="newsCardLAN">
-        <div class="news-meta-row">
-          <div class="news-asset-badge lan-tag">LAN • ĐỘT BIẾN</div>
-          <div class="news-source-badge" id="newsSourceTagLAN">
-            <span class="news-icon" id="newsIconLAN">🏛️</span>
-            <span class="news-source-name" id="newsSourceLAN">CHÍNH THỐNG</span>
-            <span class="news-trust-badge trust-high" id="newsTrustLAN">Tin cậy: Cao</span>
-          </div>
-          <div class="news-countdown-badge" id="newsTimerLAN">
-            <span class="timer-dot"></span>
-            <span class="impact-time-left" id="newsCountdownLAN">--</span>
-          </div>
-        </div>
-
-        <div class="news-content-box">
-          <p class="news-headline" id="newsHeadlineLAN">Chưa có tin mới cho LAN. Sàn đang chuẩn bị khớp lệnh.</p>
-        </div>
-
-        <div class="news-progress-track">
-          <div class="news-progress-fill" id="newsFillLAN" style="width: 0%;"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- CENTER TRADING AREA (TABS + CHART + ASSET STATS) -->
-    <main class="chart-section">
-      <!-- ASSET TABS -->
-      <div class="market-selector">
-        <button class="asset-tab active" data-asset="TRS" id="tabTRS">
-          <div class="tab-header">
-            <span class="ticker">TRS</span>
-            <span class="asset-tag low-vol">Biến động vừa</span>
-          </div>
-          <div class="tab-sub">Trà Sữa Quốc Dân</div>
-          <div class="tab-price-row">
-            <span class="tab-price mono" id="tabPriceTRS">30,000 đ</span>
-            <span class="tab-change mono up" id="tabChangeTRS">+0.00%</span>
-          </div>
-        </button>
-
-        <button class="asset-tab" data-asset="LAN" id="tabLAN">
-          <div class="tab-header">
-            <span class="ticker">LAN</span>
-            <span class="asset-tag high-vol">🔥 CỰC SỐC</span>
-          </div>
-          <div class="tab-sub">Lan Đột Biến 5 Cánh</div>
-          <div class="tab-price-row">
-            <span class="tab-price mono" id="tabPriceLAN">250,000 đ</span>
-            <span class="tab-change mono up" id="tabChangeLAN">+0.00%</span>
-          </div>
-        </button>
-      </div>
-
-      <!-- ACTIVE ASSET QUICK STATS -->
-      <div class="asset-quick-bar">
-        <div class="stat-col">
-          <span class="lbl">Giá hiện tại</span>
-          <span class="val mono large-price" id="currPriceDisplay">30,000 đ</span>
-        </div>
-        <div class="stat-col">
-          <span class="lbl">Sở hữu</span>
-          <span class="val mono" id="currHoldingDisplay">0 cp</span>
-        </div>
-        <div class="stat-col">
-          <span class="lbl">Giá trị vị thế</span>
-          <span class="val mono" id="currPositionValue">0 đ</span>
-        </div>
-        <div class="stat-col">
-          <span class="lbl">Lãi/Lỗ vị thế</span>
-          <span class="val mono" id="currPositionPnl">--</span>
-        </div>
-      </div>
-
-      <!-- CANVAS CHART CONTAINER -->
-      <div class="chart-wrapper" id="chartWrapper">
-        <canvas id="priceChart"></canvas>
-        <div class="chart-watermark" id="chartWatermark">TRS • 1S REALTIME</div>
-        <div class="chart-fee-badge" id="chartFeeBadge">Phí GD: 0.10%</div>
-        <div class="chart-tooltip" id="chartTooltip" style="display: none;">
-          <div class="tooltip-time" id="tooltipTime">--:--</div>
-          <div class="tooltip-price" id="tooltipPrice">0 đ</div>
-        </div>
-
-        <!-- MÀN HÌNH CHỜ & THỂ LỆ NHANH (WELCOME OVERLAY) -->
-        <div class="start-overlay" id="startOverlay">
-          <div class="start-card">
-            <div class="start-header">
-              <span class="start-badge-pulse">SÀN ĐẤU ĐẦU TƯ</span>
-              <h2 class="start-title">ĐỈNH HAY ĐÁY? — THỂ LỆ NHANH</h2>
+    <!-- MAIN DASHBOARD WORKSPACE (DESKTOP: 2-COLUMN; MOBILE: 1-COLUMN) -->
+    <div class="terminal-workspace">
+      <!-- CỘT TRÁI (DESKTOP): CHART & MARKET (~68%) -->
+      <main class="chart-section">
+        <!-- ASSET TABS -->
+        <div class="market-selector">
+          <button class="asset-tab active" data-asset="TRS" id="tabTRS">
+            <div class="tab-header">
+              <span class="ticker">TRS</span>
+              <span class="asset-tag low-vol">Biến động vừa</span>
             </div>
+            <div class="tab-sub">Trà Sữa Quốc Dân</div>
+            <div class="tab-price-row">
+              <span class="tab-price mono" id="tabPriceTRS">30,000 đ</span>
+              <span class="tab-change mono up" id="tabChangeTRS">+0.00%</span>
+            </div>
+          </button>
 
-            <div class="start-rules-list">
-              <div class="rule-row">
-                <span class="rule-icon">💰</span>
-                <div class="rule-content">
-                  <strong>Vốn &amp; Thời gian:</strong> Khởi đầu với 100 triệu VNĐ ảo, bạn có 180 giây để tối đa hóa tài sản.
-                </div>
+          <button class="asset-tab" data-asset="LAN" id="tabLAN">
+            <div class="tab-header">
+              <span class="ticker">LAN</span>
+              <span class="asset-tag high-vol">🔥 CỰC SỐC</span>
+            </div>
+            <div class="tab-sub">Lan Đột Biến 5 Cánh</div>
+            <div class="tab-price-row">
+              <span class="tab-price mono" id="tabPriceLAN">250,000 đ</span>
+              <span class="tab-change mono up" id="tabChangeLAN">+0.00%</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- ACTIVE ASSET QUICK STATS -->
+        <div class="asset-quick-bar">
+          <div class="stat-col">
+            <span class="lbl">Giá hiện tại</span>
+            <span class="val mono large-price" id="currPriceDisplay">30,000 đ</span>
+          </div>
+          <div class="stat-col">
+            <span class="lbl">Sở hữu</span>
+            <span class="val mono" id="currHoldingDisplay">0 cp</span>
+          </div>
+          <div class="stat-col">
+            <span class="lbl">Giá trị vị thế</span>
+            <span class="val mono" id="currPositionValue">0 đ</span>
+          </div>
+          <div class="stat-col">
+            <span class="lbl">Lãi/Lỗ vị thế</span>
+            <span class="val mono" id="currPositionPnl">--</span>
+          </div>
+        </div>
+
+        <!-- CANVAS CHART CONTAINER -->
+        <div class="chart-wrapper" id="chartWrapper">
+          <canvas id="priceChart"></canvas>
+          <div class="chart-watermark" id="chartWatermark">TRS • 1S REALTIME</div>
+          <div class="chart-fee-badge" id="chartFeeBadge">Phí GD: 0.10%</div>
+          <div class="chart-tooltip" id="chartTooltip" style="display: none;">
+            <div class="tooltip-time" id="tooltipTime">--:--</div>
+            <div class="tooltip-price" id="tooltipPrice">0 đ</div>
+          </div>
+        </div>
+      </main>
+
+      <!-- CỘT PHẢI (DESKTOP): SIDEBAR NEWS & TRADING CONTROLS (~32%) -->
+      <aside class="terminal-sidebar">
+        <!-- BREAKING NEWS CONTAINER (2 DEDICATED CARDS: TRS & LAN) -->
+        <section class="news-duo-wrapper">
+          <!-- KHUNG 1: TIN NÓNG TRS (TRÀ SỮA) -->
+          <div class="news-card news-chinh-thong" id="newsCardTRS">
+            <div class="news-meta-row">
+              <div class="news-asset-badge trs-tag">TRS • TRÀ SỮA</div>
+              <div class="news-source-badge" id="newsSourceTagTRS">
+                <span class="news-icon" id="newsIconTRS">🏛️</span>
+                <span class="news-source-name" id="newsSourceTRS">CHÍNH THỐNG</span>
+                <span class="news-trust-badge trust-high" id="newsTrustTRS">Tin cậy: Cao</span>
               </div>
-              <div class="rule-row">
-                <span class="rule-icon">📰</span>
-                <div class="rule-content">
-                  <strong>Đọc vị Tin Nóng:</strong> Theo dõi 2 bảng tin TRS &amp; LAN (tin báo trước vài giây — hãy để ý độ tin cậy nguồn tin để né bẫy!).
-                </div>
-              </div>
-              <div class="rule-row">
-                <span class="rule-icon">📈</span>
-                <div class="rule-content">
-                  <strong>Bắt Đáy, Chốt Đỉnh:</strong> Bấm MUA / BÁN / ALL-IN đúng thời điểm để săn danh hiệu "Cá Mập Phố Wall".
-                </div>
+              <div class="news-countdown-badge" id="newsTimerTRS">
+                <span class="timer-dot"></span>
+                <span class="impact-time-left" id="newsCountdownTRS">--</span>
               </div>
             </div>
 
-            <button class="btn-start-game" id="btnStartGame">
-              <span class="btn-glow-ring"></span>
-              🚀 BẮT ĐẦU GIAO DỊCH
+            <div class="news-content-box">
+              <p class="news-headline" id="newsHeadlineTRS">Chưa có tin mới cho TRS. Thị trường đang mở cửa thăm dò.</p>
+            </div>
+
+            <div class="news-progress-track">
+              <div class="news-progress-fill" id="newsFillTRS" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- KHUNG 2: TIN NÓNG LAN (LAN ĐỘT BIẾN) -->
+          <div class="news-card news-chinh-thong" id="newsCardLAN">
+            <div class="news-meta-row">
+              <div class="news-asset-badge lan-tag">LAN • ĐỘT BIẾN</div>
+              <div class="news-source-badge" id="newsSourceTagLAN">
+                <span class="news-icon" id="newsIconLAN">🏛️</span>
+                <span class="news-source-name" id="newsSourceLAN">CHÍNH THỐNG</span>
+                <span class="news-trust-badge trust-high" id="newsTrustLAN">Tin cậy: Cao</span>
+              </div>
+              <div class="news-countdown-badge" id="newsTimerLAN">
+                <span class="timer-dot"></span>
+                <span class="impact-time-left" id="newsCountdownLAN">--</span>
+              </div>
+            </div>
+
+            <div class="news-content-box">
+              <p class="news-headline" id="newsHeadlineLAN">Chưa có tin mới cho LAN. Sàn đang chuẩn bị khớp lệnh.</p>
+            </div>
+
+            <div class="news-progress-track">
+              <div class="news-progress-fill" id="newsFillLAN" style="width: 0%;"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TRADING CONTROLS (GIAO DỊCH) -->
+        <footer class="trading-controls">
+          <div class="controls-meta-header">
+            <div class="controls-title-group">
+              <span class="controls-title">ĐẶT LỆNH GIAO DỊCH</span>
+              <span class="controls-tag">Khớp lệnh tức thì</span>
+            </div>
+            <span class="controls-tip">Cooldown 0.5s • Phí tự động</span>
+          </div>
+
+          <!-- Cooldown bar overlay -->
+          <div class="cooldown-overlay" id="cooldownBar"></div>
+
+          <!-- Order feedback toast -->
+          <div class="order-toast" id="orderToast"></div>
+
+          <div class="actions-grid">
+            <!-- BUY GROUP (Khóa ban đầu khi chờ) -->
+            <button class="trade-btn btn-buy disabled" id="btnBuy25" disabled>
+              <span class="btn-primary-text">MUA 25%</span>
+              <span class="btn-sub-text" id="buy25Est">25Tr</span>
+            </button>
+            <button class="trade-btn btn-buy disabled" id="btnBuy50" disabled>
+              <span class="btn-primary-text">MUA 50%</span>
+              <span class="btn-sub-text" id="buy50Est">50Tr</span>
+            </button>
+            <button class="trade-btn btn-buy btn-allin disabled" id="btnBuyAll" disabled>
+              <span class="btn-primary-text">🚀 ALL-IN</span>
+              <span class="btn-sub-text">100% Tiền</span>
+            </button>
+
+            <!-- SELL GROUP (Khóa ban đầu khi chờ) -->
+            <button class="trade-btn btn-sell disabled" id="btnSell50" disabled>
+              <span class="btn-primary-text">BÁN 50%</span>
+              <span class="btn-sub-text" id="sell50Est">Nửa kho</span>
+            </button>
+            <button class="trade-btn btn-sell btn-sellall disabled" id="btnSellAll" disabled>
+              <span class="btn-primary-text">⚡ BÁN HẾT</span>
+              <span class="btn-sub-text">Thoát hàng</span>
             </button>
           </div>
+        </footer>
+      </aside>
+    </div>
+
+    <!-- MÀN HÌNH CHỜ & THỂ LỆ NHANH (WELCOME OVERLAY) -->
+    <div class="start-overlay" id="startOverlay">
+      <div class="start-card">
+        <div class="start-header">
+          <span class="start-badge-pulse">SÀN ĐẤU ĐẦU TƯ</span>
+          <h2 class="start-title">ĐỈNH HAY ĐÁY? — THỂ LỆ NHANH</h2>
         </div>
-      </div>
-    </main>
 
-    <!-- BOTTOM CONTROL BAR (THUMB FRIENDLY) -->
-    <footer class="trading-controls">
-      <!-- Cooldown bar overlay -->
-      <div class="cooldown-overlay" id="cooldownBar"></div>
+        <div class="start-rules-list">
+          <div class="rule-row">
+            <span class="rule-icon">💰</span>
+            <div class="rule-content">
+              <strong>Vốn &amp; Thời gian:</strong> Khởi đầu với 100 triệu VNĐ ảo, bạn có 180 giây để tối đa hóa tài sản.
+            </div>
+          </div>
+          <div class="rule-row">
+            <span class="rule-icon">📰</span>
+            <div class="rule-content">
+              <strong>Đọc vị Tin Nóng:</strong> Theo dõi 2 bảng tin TRS &amp; LAN (tin báo trước vài giây — hãy để ý độ tin cậy nguồn tin để né bẫy!).
+            </div>
+          </div>
+          <div class="rule-row">
+            <span class="rule-icon">📈</span>
+            <div class="rule-content">
+              <strong>Bắt Đáy, Chốt Đỉnh:</strong> Bấm MUA / BÁN / ALL-IN đúng thời điểm để săn danh hiệu "Cá Mập Phố Wall".
+            </div>
+          </div>
+        </div>
 
-      <!-- Order feedback toast -->
-      <div class="order-toast" id="orderToast"></div>
-
-      <div class="actions-grid">
-        <!-- BUY GROUP (Khóa ban đầu khi chờ) -->
-        <button class="trade-btn btn-buy disabled" id="btnBuy25" disabled>
-          <span class="btn-primary-text">MUA 25%</span>
-          <span class="btn-sub-text" id="buy25Est">25Tr</span>
-        </button>
-        <button class="trade-btn btn-buy disabled" id="btnBuy50" disabled>
-          <span class="btn-primary-text">MUA 50%</span>
-          <span class="btn-sub-text" id="buy50Est">50Tr</span>
-        </button>
-        <button class="trade-btn btn-buy btn-allin disabled" id="btnBuyAll" disabled>
-          <span class="btn-primary-text">🚀 ALL-IN</span>
-          <span class="btn-sub-text">100% Tiền</span>
-        </button>
-
-        <!-- SELL GROUP (Khóa ban đầu khi chờ) -->
-        <button class="trade-btn btn-sell disabled" id="btnSell50" disabled>
-          <span class="btn-primary-text">BÁN 50%</span>
-          <span class="btn-sub-text" id="sell50Est">Nửa kho</span>
-        </button>
-        <button class="trade-btn btn-sell btn-sellall disabled" id="btnSellAll" disabled>
-          <span class="btn-primary-text">⚡ BÁN HẾT</span>
-          <span class="btn-sub-text">Thoát hàng</span>
+        <button class="btn-start-game" id="btnStartGame">
+          <span class="btn-glow-ring"></span>
+          🚀 BẮT ĐẦU GIAO DỊCH
         </button>
       </div>
-    </footer>
+    </div>
   </div>
 
   <!-- MODAL: SUMMARY / GAME OVER -->

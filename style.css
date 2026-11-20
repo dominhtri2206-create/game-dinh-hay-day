@@ -71,15 +71,30 @@ html, body {
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 900px;
+  max-width: 100%;
   height: 100%;
   height: 100dvh;
   margin: 0 auto;
   background-color: var(--bg-primary);
-  border-left: 1px solid var(--border-color);
-  border-right: 1px solid var(--border-color);
   position: relative;
   overflow: hidden;
+}
+
+/* Terminal Workspace (Mobile: 1 column vertical flow) */
+.terminal-workspace {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+.terminal-sidebar {
+  display: contents; /* Flattens news and controls on mobile */
+}
+
+.controls-meta-header {
+  display: none; /* Only visible on desktop */
 }
 
 /* --------------------------------------------------------------------------
@@ -421,6 +436,7 @@ html, body {
    2. BREAKING NEWS DUAL CARDS (TRS & LAN SEPARATE CHANNELS)
    -------------------------------------------------------------------------- */
 .news-duo-wrapper {
+  order: 1;
   flex-shrink: 0;
   padding: 6px 10px;
   background: #0b0f19;
@@ -674,6 +690,7 @@ html, body {
    3. CENTER CHART & MARKET AREA
    -------------------------------------------------------------------------- */
 .chart-section {
+  order: 2;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -893,6 +910,7 @@ html, body {
    4. BOTTOM TRADING CONTROLS (THUMB FRIENDLY)
    -------------------------------------------------------------------------- */
 .trading-controls {
+  order: 3;
   flex-shrink: 0;
   background: #0f1523;
   border-top: 1px solid var(--border-color);
@@ -1052,22 +1070,22 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 50;
+  z-index: 60;
   padding: 12px;
   animation: fadeIn 0.3s ease;
 }
 
 .start-card {
   width: 100%;
-  max-width: 440px;
+  max-width: 480px;
   background: linear-gradient(180deg, #151d2c 0%, #0d131f 100%);
   border: 1.5px solid rgba(56, 189, 248, 0.4);
   border-radius: var(--radius-lg);
   box-shadow: 0 20px 45px rgba(0, 0, 0, 0.8), 0 0 30px rgba(56, 189, 248, 0.15);
-  padding: 16px 16px 14px;
+  padding: 18px 18px 16px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 11px;
   animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -1393,7 +1411,7 @@ html, body {
    -------------------------------------------------------------------------- */
 @media (max-width: 400px) {
   .news-headline {
-    font-size: 0.96rem;
+    font-size: 0.94rem;
     line-height: 1.35;
   }
   .news-source-name {
@@ -1405,7 +1423,8 @@ html, body {
   }
 }
 
-@media (min-width: 640px) {
+/* Tablet portrait adjustments (640px to 899px) */
+@media (min-width: 640px) and (max-width: 899px) {
   .top-bar {
     padding: 10px 16px 8px;
   }
@@ -1433,14 +1452,305 @@ html, body {
   #btnSell50 { grid-column: span 1; }
   #btnSellAll { grid-column: span 1; }
   .trade-btn {
-    min-height: 54px;
-    padding: 10px 6px;
+    min-height: 52px;
+    padding: 8px 6px;
   }
   .btn-primary-text {
     font-size: 0.85rem;
   }
   .btn-sub-text {
     font-size: 0.68rem;
+  }
+}
+
+/* ==========================================================================
+   DESKTOP PROFESSIONAL TRADING DASHBOARD (>= 900px)
+   Full-screen, 2-column layout (~68% Chart / ~32% News & Orders)
+   ========================================================================== */
+@media (min-width: 900px) {
+  .trading-terminal {
+    max-width: 1560px;
+    height: 100vh;
+    height: 100dvh;
+    padding: 0 20px 14px;
+    border-left: 1px solid rgba(255, 255, 255, 0.06);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
+    gap: 8px;
+  }
+
+  /* Dev credit bar spans full width */
+  .dev-credit-bar {
+    padding: 6px 16px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    background: #080c14;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: none;
+    margin-bottom: 2px;
+  }
+
+  .credit-main-line {
+    font-size: 13px;
+  }
+
+  /* Top bar full-width horizontal layout */
+  .top-bar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 18px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(180deg, #131a29 0%, #0d121c 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+    margin-bottom: 2px;
+    gap: 16px;
+  }
+
+  .brand-timer-group {
+    gap: 14px;
+    flex-shrink: 0;
+  }
+
+  .game-logo {
+    font-size: 1.15rem;
+  }
+
+  .networth-container {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 24px;
+    background: transparent;
+    border: none;
+    padding: 0;
+    flex: 1;
+  }
+
+  .networth-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+  }
+
+  .networth-values {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .networth-amount {
+    font-size: 1.65rem;
+  }
+
+  .cash-row {
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+    font-size: 0.8rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    padding-left: 18px;
+  }
+
+  /* 2-Column Professional Workspace */
+  .terminal-workspace {
+    display: grid;
+    grid-template-columns: minmax(0, 68fr) minmax(360px, 32fr);
+    gap: 14px;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+  }
+
+  /* CỘT TRÁI (~68%): Chart & Market Section */
+  .chart-section {
+    order: 1;
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: #0d121c;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .market-selector {
+    padding: 8px 14px;
+    gap: 10px;
+    background: #111724;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .asset-tab {
+    padding: 8px 14px;
+  }
+
+  .ticker {
+    font-size: 1.1rem;
+  }
+
+  .tab-price {
+    font-size: 0.95rem;
+  }
+
+  .asset-quick-bar {
+    padding: 8px 16px;
+    background: rgba(17, 24, 39, 0.7);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .stat-col .lbl {
+    font-size: 0.68rem;
+  }
+
+  .stat-col .val {
+    font-size: 0.88rem;
+  }
+
+  .large-price {
+    font-size: 1.08rem !important;
+  }
+
+  .chart-wrapper {
+    flex: 1;
+    min-height: 0; /* Lets chart canvas stretch to fill all available vertical space */
+  }
+
+  /* CỘT PHẢI (~32%): Sidebar News & Trading Controls */
+  .terminal-sidebar {
+    order: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    height: 100%;
+    min-height: 0;
+  }
+
+  /* Khung Tin Nóng xếp dọc 2 thẻ TRS & LAN */
+  .news-duo-wrapper {
+    order: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px;
+    background: #0d121c;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    flex-shrink: 0;
+  }
+
+  .news-card {
+    min-height: 96px;
+    padding: 10px 12px 8px;
+    border-radius: var(--radius-md);
+  }
+
+  .news-meta-row {
+    margin-bottom: 4px;
+  }
+
+  .news-asset-badge {
+    font-size: 0.72rem;
+    padding: 3px 8px;
+  }
+
+  .news-source-badge {
+    padding: 3px 8px;
+  }
+
+  .news-source-name {
+    font-size: 0.7rem;
+  }
+
+  .news-headline {
+    font-size: 1.02rem;
+    line-height: 1.42;
+  }
+
+  /* Trading Controls at bottom of sidebar */
+  .trading-controls {
+    order: 2;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+    background: #0d121c;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-lg);
+    padding: 16px 14px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    min-height: 0;
+  }
+
+  .controls-meta-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .controls-title-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .controls-title {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #f1f5f9;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .controls-tag {
+    font-size: 0.62rem;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+
+  .controls-tip {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+  }
+
+  .actions-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    width: 100%;
+  }
+
+  #btnBuy25 { grid-column: span 2; min-height: 56px; }
+  #btnBuy50 { grid-column: span 2; min-height: 56px; }
+  #btnBuyAll { grid-column: span 2; min-height: 56px; }
+  #btnSell50 { grid-column: span 3; min-height: 56px; }
+  #btnSellAll { grid-column: span 3; min-height: 56px; }
+
+  .trade-btn .btn-primary-text {
+    font-size: 1.02rem;
+    letter-spacing: 0.02em;
+  }
+
+  .trade-btn .btn-sub-text {
+    font-size: 0.76rem;
   }
 }
 

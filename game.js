@@ -1027,6 +1027,12 @@
         this.dom.startOverlay.style.display = 'none';
       }
 
+      // Đảm bảo biểu đồ vừa khít kích thước khung hiển thị
+      if (this.chart) {
+        this.chart.resize();
+        this.chart.render();
+      }
+
       // Mở khóa các nút lệnh
       this.enableTradingButtons();
 
