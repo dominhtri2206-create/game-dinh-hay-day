@@ -73,6 +73,8 @@
     TRS: {
       ticker: 'TRS',
       name: 'Trà Sữa Quốc Dân',
+      unit: 'cp',
+      feeBadge: 'Phí GD: 0.10%',
       basePrice: 30000,
       minPrice: 4000,
       feeRate: 0.001, // 0.1%
@@ -82,6 +84,8 @@
     LAN: {
       ticker: 'LAN',
       name: 'Lan Đột Biến 5 Cánh',
+      unit: 'nhánh',
+      feeBadge: 'Phí GD: 0.15%',
       basePrice: 250000,
       minPrice: 8000,
       feeRate: 0.0015, // 0.15%
@@ -91,6 +95,8 @@
     MEO: {
       ticker: 'MEO',
       name: 'Coin Mèo Béo',
+      unit: 'coin',
+      feeBadge: 'Phí GD: 0.20% (Trượt All-in 1.5%)',
       basePrice: 10000,
       minPrice: 500,
       feeRate: 0.002, // 0.2%
@@ -495,24 +501,18 @@
         LAN: 0,
         MEO: 0
       };
-      this.margin = {
+      this.debt = {
         TRS: 0,
         LAN: 0,
         MEO: 0
       };
-      this.borrowed = {
+      this.marginCommitted = {
         TRS: 0,
         LAN: 0,
         MEO: 0
       };
-      this.lastLeverageUsed = {
-        TRS: 1,
-        LAN: 1,
-        MEO: 1
-      };
-
-      // Đòn bẩy & Vay nợ (Margin)
-      this.activeLeverage = 1; // 1, 2, hoặc 5
+      this.selectedLeverage = 1;
+      this.hasLeverageActive = false;
       this.leverageUsesLeft = 3; // Tối đa 3 lượt đòn bẩy trong ván
       this.isInterestHiked = false; // Tăng vọt lãi suất khi có tin vĩ mô
       this.isLiquidated = false; // Cháy tài khoản
@@ -575,11 +575,10 @@
       this.cash = INITIAL_CASH;
       this.holdings = { TRS: 0, LAN: 0, MEO: 0 };
       this.costBasis = { TRS: 0, LAN: 0, MEO: 0 };
-      this.margin = { TRS: 0, LAN: 0, MEO: 0 };
-      this.borrowed = { TRS: 0, LAN: 0, MEO: 0 };
-      this.lastLeverageUsed = { TRS: 1, LAN: 1, MEO: 1 };
-
-      this.activeLeverage = 1;
+      this.debt = { TRS: 0, LAN: 0, MEO: 0 };
+      this.marginCommitted = { TRS: 0, LAN: 0, MEO: 0 };
+      this.selectedLeverage = 1;
+      this.hasLeverageActive = false;
       this.leverageUsesLeft = 3;
       this.isInterestHiked = false;
       this.isLiquidated = false;
@@ -635,12 +634,16 @@
       return PHASES[PHASES.length - 1];
     }
 
+    getTotalDebt() {
+      return (this.debt.TRS || 0) + (this.debt.LAN || 0) + (this.debt.MEO || 0);
+    }
+
     getTotalNetWorth() {
-      const valTRS = this.holdings.TRS * this.market.TRS.currentPrice;
-      const valLAN = this.holdings.LAN * this.market.LAN.currentPrice;
-      const valMEO = this.holdings.MEO * this.market.MEO.currentPrice;
-      const totalBorrowed = (this.borrowed.TRS || 0) + (this.borrowed.LAN || 0) + (this.borrowed.MEO || 0);
-      return Math.max(0, this.cash + valTRS + valLAN + valMEO - totalBorrowed);
+      const valTRS = (this.holdings.TRS || 0) * (this.market.TRS ? this.market.TRS.currentPrice : 0);
+      const valLAN = (this.holdings.LAN || 0) * (this.market.LAN ? this.market.LAN.currentPrice : 0);
+      const valMEO = (this.holdings.MEO || 0) * (this.market.MEO ? this.market.MEO.currentPrice : 0);
+      const totalDebt = this.getTotalDebt();
+      return Math.max(0, this.cash + valTRS + valLAN + valMEO - totalDebt);
     }
 
     getPnl() {
@@ -750,9 +753,11 @@
     }
 
     resize() {
-      const rect = this.canvas.parentElement.getBoundingClientRect();
-      const width = rect.width;
-      const height = rect.height;
+      if (!this.canvas) return;
+      const parent = this.canvas.parentElement;
+      const rect = parent ? parent.getBoundingClientRect() : null;
+      const width = rect && rect.width > 0 ? rect.width : (this.width || 600);
+      const height = rect && rect.height > 0 ? rect.height : (this.height || 400);
 
       this.canvas.width = Math.floor(width * this.dpr);
       this.canvas.height = Math.floor(height * this.dpr);
@@ -1177,20 +1182,38 @@
     }
 
     bindEvents() {
-      // Nút bắt đầu chơi trên màn hình chờ
-      if (this.dom.btnStartGame) {
-        this.dom.btnStartGame.addEventListener('click', () => this.startGame());
+      // Nút bắt đầu chơi trên màn hình chờ (Gán cả click, touchstart và onclick)
+      const startBtn = this.dom.btnStartGame || document.getElementById('btnStartGame');
+      if (startBtn) {
+        startBtn.onclick = (e) => {
+          if (e && e.preventDefault) e.preventDefault();
+          this.startGame();
+        };
+        startBtn.addEventListener('click', (e) => {
+          if (e && e.preventDefault) e.preventDefault();
+          this.startGame();
+        });
+        startBtn.addEventListener('touchend', (e) => {
+          if (e && e.preventDefault) e.preventDefault();
+          this.startGame();
+        });
       }
 
       // Sound Toggle
-      this.dom.soundToggleBtn.addEventListener('click', () => {
-        const enabled = this.state.sound.toggle();
-        this.dom.soundIcon.textContent = enabled ? '🔊' : '🔇';
-      });
+      if (this.dom.soundToggleBtn) {
+        this.dom.soundToggleBtn.addEventListener('click', () => {
+          const enabled = this.state.sound.toggle();
+          if (this.dom.soundIcon) this.dom.soundIcon.textContent = enabled ? '🔊' : '🔇';
+        });
+      }
 
       // Asset Tabs
-      this.dom.tabTRS.addEventListener('click', () => this.switchAsset('TRS'));
-      this.dom.tabLAN.addEventListener('click', () => this.switchAsset('LAN'));
+      if (this.dom.tabTRS) {
+        this.dom.tabTRS.addEventListener('click', () => this.switchAsset('TRS'));
+      }
+      if (this.dom.tabLAN) {
+        this.dom.tabLAN.addEventListener('click', () => this.switchAsset('LAN'));
+      }
       if (this.dom.tabMEO) {
         this.dom.tabMEO.addEventListener('click', () => this.switchAsset('MEO'));
       }
@@ -1207,17 +1230,17 @@
       }
 
       // Buy Buttons
-      this.dom.btnBuy25.addEventListener('click', () => this.executeBuy(0.25));
-      this.dom.btnBuy50.addEventListener('click', () => this.executeBuy(0.50));
-      this.dom.btnBuyAll.addEventListener('click', () => this.executeBuy(1.00));
+      if (this.dom.btnBuy25) this.dom.btnBuy25.addEventListener('click', () => this.executeBuy(0.25));
+      if (this.dom.btnBuy50) this.dom.btnBuy50.addEventListener('click', () => this.executeBuy(0.50));
+      if (this.dom.btnBuyAll) this.dom.btnBuyAll.addEventListener('click', () => this.executeBuy(1.00));
 
       // Sell Buttons
-      this.dom.btnSell50.addEventListener('click', () => this.executeSell(0.50));
-      this.dom.btnSellAll.addEventListener('click', () => this.executeSell(1.00));
+      if (this.dom.btnSell50) this.dom.btnSell50.addEventListener('click', () => this.executeSell(0.50));
+      if (this.dom.btnSellAll) this.dom.btnSellAll.addEventListener('click', () => this.executeSell(1.00));
 
       // Modal & Spectator Buttons
-      this.dom.btnRestart.addEventListener('click', () => this.restartGame());
-      this.dom.btnShare.addEventListener('click', () => this.shareResult());
+      if (this.dom.btnRestart) this.dom.btnRestart.addEventListener('click', () => this.restartGame());
+      if (this.dom.btnShare) this.dom.btnShare.addEventListener('click', () => this.shareResult());
 
       if (this.dom.btnSpectate) {
         this.dom.btnSpectate.addEventListener('click', () => this.enterSpectatorMode());
@@ -1231,15 +1254,25 @@
     }
 
     startGame() {
-      this.state.sound.init();
-      if (this.dom.startOverlay) {
-        this.dom.startOverlay.style.display = 'none';
+      try {
+        this.state.sound.init();
+      } catch (e) {
+        console.warn('AudioContext init error:', e);
+      }
+
+      const overlay = this.dom.startOverlay || document.getElementById('startOverlay');
+      if (overlay) {
+        overlay.style.display = 'none';
       }
 
       // Đảm bảo biểu đồ vừa khít kích thước khung hiển thị
       if (this.chart) {
-        this.chart.resize();
-        this.chart.render();
+        try {
+          this.chart.resize();
+          this.chart.render();
+        } catch (e) {
+          console.warn('Chart render error on start:', e);
+        }
       }
 
       // Mở khóa các nút lệnh
@@ -1247,7 +1280,9 @@
 
       // Bắt đầu nhịp sàn (1 tick = 1000ms = 1 giây)
       this.startSession();
-      this.state.sound.playBuy();
+      try {
+        this.state.sound.playBuy();
+      } catch (e) {}
       this.showToast('🚀 Phiên giao dịch chính thức mở cửa!', 'success');
     }
 
@@ -2159,8 +2194,24 @@
   // =========================================================================
   // BOOTSTRAP
   // =========================================================================
-  window.addEventListener('DOMContentLoaded', () => {
-    new GameController();
-  });
+  function bootGame() {
+    if (window._gameControllerInstance) return;
+    try {
+      window._gameControllerInstance = new GameController();
+      window.startGameDirect = function() {
+        if (window._gameControllerInstance) {
+          window._gameControllerInstance.startGame();
+        }
+      };
+    } catch (err) {
+      console.error('Fatal initialization error:', err);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootGame);
+  } else {
+    bootGame();
+  }
 
 })();

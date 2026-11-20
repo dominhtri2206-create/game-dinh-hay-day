@@ -321,7 +321,7 @@
           </div>
         </div>
 
-        <button class="btn-start-game" id="btnStartGame">
+        <button class="btn-start-game" id="btnStartGame" type="button" onclick="if(window.startGameDirect){ window.startGameDirect(); } else { const o = document.getElementById('startOverlay'); if(o) o.style.display='none'; }">
           <span class="btn-glow-ring"></span>
           🚀 BẮT ĐẦU GIAO DỊCH
         </button>
@@ -372,7 +372,6 @@
         </button>
       </div>
     </div>
-  </div>
   </div>
 
   <!-- MODAL: SUMMARY / GAME OVER -->

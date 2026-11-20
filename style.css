@@ -1243,17 +1243,18 @@ html, body {
    4b. START GAME OVERLAY & WAITING SCREEN
    -------------------------------------------------------------------------- */
 .start-overlay {
-  position: absolute;
+  position: fixed;
   inset: 0;
-  background: rgba(6, 9, 16, 0.92);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(6, 9, 16, 0.94);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 60;
+  z-index: 999;
   padding: 12px;
   animation: fadeIn 0.3s ease;
+  pointer-events: auto;
 }
 
 .start-card {
@@ -1268,6 +1269,9 @@ html, body {
   flex-direction: column;
   gap: 11px;
   animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  z-index: 1000;
+  pointer-events: auto;
 }
 
 .start-header {
@@ -1353,6 +1357,8 @@ html, body {
   justify-content: center;
   gap: 8px;
   position: relative;
+  z-index: 1001;
+  pointer-events: auto;
   overflow: hidden;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   margin-top: 2px;
