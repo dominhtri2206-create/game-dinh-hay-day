@@ -1763,10 +1763,10 @@
       };
       this.state.newsIndex = { TRS: 0, LAN: 0, MEO: 0, MACRO: 0 };
       this.state.nextNewsSec = {
-        TRS: getRandomInt(10, 16),
-        LAN: getRandomInt(13, 20),
-        MEO: getRandomInt(15, 23),
-        MACRO: getRandomInt(35, 48)
+        TRS: getRandomInt(3, 5),    // Tin TRS nổ sớm sau 3-5s để người chơi thấy tin mới ngay tức thì!
+        LAN: getRandomInt(7, 10),   // Tin LAN nổ sau 7-10s
+        MEO: getRandomInt(11, 15),  // Tin MEO nổ sau 11-15s
+        MACRO: getRandomInt(25, 38) // Tin Vĩ mô nổ sau 25-38s
       };
     }
 
@@ -2477,7 +2477,7 @@
     }
 
     resetNewsCards() {
-      const resetOne = (cardEl, iconEl, srcEl, trustEl, countdownEl, headlineEl, fillEl, assetName) => {
+      const resetOne = (cardEl, iconEl, srcEl, trustEl, countdownEl, headlineEl, fillEl, placeholderText) => {
         if (!cardEl) return;
         cardEl.className = 'news-card news-chinh-thong';
         if (iconEl) iconEl.textContent = '🏛️';
@@ -2487,7 +2487,7 @@
           trustEl.className = 'news-trust-badge trust-high';
         }
         if (headlineEl) {
-          headlineEl.textContent = `Chưa có tin mới cho ${assetName}. Thị trường đang mở cửa thăm dò.`;
+          headlineEl.textContent = placeholderText;
         }
         if (countdownEl && countdownEl.parentElement) {
           countdownEl.parentElement.classList.remove('impacting');
@@ -2499,9 +2499,9 @@
         }
       };
 
-      resetOne(this.dom.newsCardTRS, this.dom.newsIconTRS, this.dom.newsSourceTRS, this.dom.newsTrustTRS, this.dom.newsCountdownTRS, this.dom.newsHeadlineTRS, this.dom.newsFillTRS, 'TRS');
-      resetOne(this.dom.newsCardLAN, this.dom.newsIconLAN, this.dom.newsSourceLAN, this.dom.newsTrustLAN, this.dom.newsCountdownLAN, this.dom.newsHeadlineLAN, this.dom.newsFillLAN, 'LAN');
-      resetOne(this.dom.newsCardMEO, this.dom.newsIconMEO, this.dom.newsSourceMEO, this.dom.newsTrustMEO, this.dom.newsCountdownMEO, this.dom.newsHeadlineMEO, this.dom.newsFillMEO, 'MEO');
+      resetOne(this.dom.newsCardTRS, this.dom.newsIconTRS, this.dom.newsSourceTRS, this.dom.newsTrustTRS, this.dom.newsCountdownTRS, this.dom.newsHeadlineTRS, this.dom.newsFillTRS, '📡 Đang kết nối kho 52 tin ngẫu nhiên... Tin đầu tiên sẽ nổ sau 3-5s!');
+      resetOne(this.dom.newsCardLAN, this.dom.newsIconLAN, this.dom.newsSourceLAN, this.dom.newsTrustLAN, this.dom.newsCountdownLAN, this.dom.newsHeadlineLAN, this.dom.newsFillLAN, '📡 Theo dõi biến động đội lái... Tin sốt dẻo sẽ nổ sau 7-10s!');
+      resetOne(this.dom.newsCardMEO, this.dom.newsIconMEO, this.dom.newsSourceMEO, this.dom.newsTrustMEO, this.dom.newsCountdownMEO, this.dom.newsHeadlineMEO, this.dom.newsFillMEO, '📡 Quét ví cá voi & Mèo Mask... Tin nổ sau 11-15s!');
     }
 
     restartGame() {

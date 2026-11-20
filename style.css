@@ -239,6 +239,26 @@ html, body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+}
+
+.badge-v-new {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(0, 230, 118, 0.15);
+  border: 1px solid rgba(0, 230, 118, 0.45);
+  color: #00e676;
+  -webkit-text-fill-color: #00e676;
+  vertical-align: middle;
+  margin-left: 8px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  box-shadow: 0 0 10px rgba(0, 230, 118, 0.25);
 }
 
 .timer-card {
