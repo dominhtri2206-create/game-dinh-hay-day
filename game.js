@@ -27,6 +27,7 @@
       description: 'Thị trường tạo đáy nghi ngờ, tích lũy nhẹ nhàng.',
       driftTRS: 0.0012,
       driftLAN: 0.0025,
+      driftMEO: 0.0035,
       volMultiplier: 1.0
     },
     {
@@ -38,6 +39,7 @@
       description: 'Dòng tiền FOMO ồ ạt đổ vào, giá tăng vùn vụt!',
       driftTRS: 0.0045,
       driftLAN: 0.0120,
+      driftMEO: 0.0220,
       volMultiplier: 1.5
     },
     {
@@ -49,6 +51,7 @@
       description: 'Biến động giật gân, phân phối đỉnh, bẫy tăng giá!',
       driftTRS: -0.0010,
       driftLAN: -0.0035,
+      driftMEO: -0.0050,
       volMultiplier: 2.2
     },
     {
@@ -60,6 +63,7 @@
       description: 'Bán tháo toàn diện, cá mập xả hàng, bắt đáy đứt tay!',
       driftTRS: -0.0055,
       driftLAN: -0.0145,
+      driftMEO: -0.0250,
       volMultiplier: 1.8
     }
   ];
@@ -83,10 +87,19 @@
       feeRate: 0.0015, // 0.15%
       volatility: 0.038, // Dao động cực mạnh ~3.8%/giây
       watermark: 'LAN • 1S REALTIME'
+    },
+    MEO: {
+      ticker: 'MEO',
+      name: 'Coin Mèo Béo',
+      basePrice: 10000,
+      minPrice: 500,
+      feeRate: 0.002, // 0.2%
+      volatility: 0.065, // Siêu biến động ~6.5%/giây
+      watermark: 'MEO • 1S REALTIME'
     }
   };
 
-  // 2 DEDICATED NEWS CHANNELS: TRS, LAN & VĨ MÔ TOÀN SÀN (ALL)
+  // 3 DEDICATED NEWS CHANNELS: TRS, LAN, MEO & VĨ MÔ TOÀN SÀN (ALL)
   const NEWS_CATALOG = [
     // --- 1. TRS NEWS (10s) ---
     {
@@ -103,7 +116,22 @@
       type: "bull"
     },
 
-    // --- 2. LAN NEWS (25s) ---
+    // --- 2. MEO NEWS (18s) ---
+    {
+      targetSec: 18,
+      target: 'MEO',
+      headline: "Tỷ phú Mèo Mask đổi ảnh đại diện Twitter sang Mèo Béo đeo kính ngầu, cộng đồng quốc tế đổ xô fomo càn quét sàn!",
+      source: "chuyen_gia",
+      sourceName: "KOL QUỐC TẾ",
+      trustText: "Tin cậy: Vừa",
+      trustClass: "trust-medium",
+      cardClass: "news-chuyen-gia",
+      icon: "🐱",
+      impact: { asset: "MEO", factor: 0.068, ticks: 10 },
+      type: "hot"
+    },
+
+    // --- 3. LAN NEWS (25s) ---
     {
       targetSec: 25,
       target: 'LAN',
@@ -118,7 +146,7 @@
       type: "bull"
     },
 
-    // --- 3. VĨ MÔ TOÀN SÀN (42s) - HIỂN THỊ ĐỒNG LOẠT 2 KHUNG ---
+    // --- 4. VĨ MÔ TOÀN SÀN (42s) - HIỂN THỊ ĐỒNG LOẠT 3 KHUNG ---
     {
       targetSec: 42,
       target: 'ALL',
@@ -133,7 +161,22 @@
       type: "bull"
     },
 
-    // --- 4. TRS NEWS (62s) ---
+    // --- 5. MEO NEWS (52s) ---
+    {
+      targetSec: 52,
+      target: 'MEO',
+      headline: "Sàn giao dịch Top 1 thông báo niêm yết MEO Futures với đòn bẩy x50, khối lượng giao dịch phái sinh bùng nổ 500%!",
+      source: "chinh_thong",
+      sourceName: "BÁO CHÍNH THỐNG",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "🚀",
+      impact: { asset: "MEO", factor: 0.075, ticks: 10 },
+      type: "bull"
+    },
+
+    // --- 6. TRS NEWS (62s) ---
     {
       targetSec: 62,
       target: 'TRS',
@@ -148,7 +191,7 @@
       type: "bull"
     },
 
-    // --- 5. LAN NEWS (80s) ---
+    // --- 7. LAN NEWS (80s) ---
     {
       targetSec: 80,
       target: 'LAN',
@@ -163,7 +206,7 @@
       type: "hot"
     },
 
-    // --- 6. VĨ MÔ TOÀN SÀN (96s) - HIỂN THỊ ĐỒNG LOẠT 2 KHUNG ---
+    // --- 8. VĨ MÔ TOÀN SÀN (96s) - HIỂN THỊ ĐỒNG LOẠT 3 KHUNG ---
     {
       targetSec: 96,
       target: 'ALL',
@@ -178,7 +221,23 @@
       type: "danger"
     },
 
-    // --- 7. LAN NEWS - BẪY PUMP & DUMP (114s) ---
+    // --- 9. MEO NEWS - BẪY PUMP & DUMP (104s) ---
+    {
+      targetSec: 104,
+      target: 'MEO',
+      headline: "Bẫy Pump & Dump MEO: Cá mập tạo volume ảo đẩy giá lên mây rồi âm thầm xả 40 tỷ coin vào đầu F0 đu đỉnh!",
+      source: "tin_don",
+      sourceName: "PUMP & DUMP",
+      trustText: "Tin cậy: Thấp - Nguy hiểm",
+      trustClass: "trust-low",
+      cardClass: "news-tin-don",
+      icon: "⚠️",
+      // Trap: kéo nhẹ 4 giây rồi sập sâu 12 giây
+      impact: { asset: "MEO", factor: 0.080, ticks: 4, postDump: -0.095 },
+      type: "hot"
+    },
+
+    // --- 10. LAN NEWS - BẪY PUMP & DUMP (114s) ---
     {
       targetSec: 114,
       target: 'LAN',
@@ -194,7 +253,7 @@
       type: "hot"
     },
 
-    // --- 8. LAN NEWS - SẬP HẦM (135s) ---
+    // --- 11. LAN NEWS - SẬP HẦM (135s) ---
     {
       targetSec: 135,
       target: 'LAN',
@@ -209,22 +268,37 @@
       type: "danger"
     },
 
-    // --- 9. VĨ MÔ TOÀN SÀN (152s) - HIỂN THỊ ĐỒNG LOẠT 2 KHUNG ---
+    // --- 12. MEO NEWS - RUG PULL (142s) ---
+    {
+      targetSec: 142,
+      target: 'MEO',
+      headline: "Đội Dev MEO âm thầm rút sạch thanh khoản (Rug-pull), xóa kênh chat, hàng nghìn nhà đầu tư khóc ròng!",
+      source: "chinh_thong",
+      sourceName: "CẢNH BÁO KHẨN",
+      trustText: "Tin cậy: Cao",
+      trustClass: "trust-high",
+      cardClass: "news-chinh-thong",
+      icon: "💀",
+      impact: { asset: "MEO", factor: -0.120, ticks: 12 },
+      type: "danger"
+    },
+
+    // --- 13. VĨ MÔ TOÀN SÀN (152s) - TĂNG LÃI SUẤT & PHÍ VAY VỌT TĂNG ---
     {
       targetSec: 152,
       target: 'ALL',
-      headline: "Lãi suất liên ngân hàng tăng sốc! Áp lực giải chấp margin đè nặng toàn bộ tài sản tài chính!",
+      headline: "Lãi suất liên ngân hàng tăng sốc! Ngân hàng siết tín dụng, lãi vay đòn bẩy margin tăng vọt lên 0.20%/s!",
       source: "chinh_thong",
       sourceName: "VĨ MÔ CHUNG",
       trustText: "Tin cậy: Cao",
       trustClass: "trust-high",
       cardClass: "news-chinh-thong",
       icon: "🏛️",
-      impact: { asset: "ALL", factor: -0.032, ticks: 12 },
+      impact: { asset: "ALL", factor: -0.035, ticks: 12 },
       type: "danger"
     },
 
-    // --- 10. TRS NEWS (168s) ---
+    // --- 14. TRS NEWS (168s) ---
     {
       targetSec: 168,
       target: 'TRS',
@@ -378,6 +452,28 @@
         osc.stop(startTime + 0.32);
       });
     }
+
+    playLiquidation() {
+      if (!this.enabled) return;
+      this.init();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      [360, 280, 200, 140].forEach((freq, idx) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const startTime = now + idx * 0.16;
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, startTime);
+        osc.frequency.exponentialRampToValueAtTime(freq * 0.65, startTime + 0.15);
+        gain.gain.setValueAtTime(0.35, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.16);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(startTime);
+        osc.stop(startTime + 0.16);
+      });
+    }
   }
 
   // =========================================================================
@@ -391,12 +487,37 @@
       this.cash = INITIAL_CASH;
       this.holdings = {
         TRS: 0,
-        LAN: 0
+        LAN: 0,
+        MEO: 0
       };
       this.costBasis = {
         TRS: 0,
-        LAN: 0
+        LAN: 0,
+        MEO: 0
       };
+      this.margin = {
+        TRS: 0,
+        LAN: 0,
+        MEO: 0
+      };
+      this.borrowed = {
+        TRS: 0,
+        LAN: 0,
+        MEO: 0
+      };
+      this.lastLeverageUsed = {
+        TRS: 1,
+        LAN: 1,
+        MEO: 1
+      };
+
+      // Đòn bẩy & Vay nợ (Margin)
+      this.activeLeverage = 1; // 1, 2, hoặc 5
+      this.leverageUsesLeft = 3; // Tối đa 3 lượt đòn bẩy trong ván
+      this.isInterestHiked = false; // Tăng vọt lãi suất khi có tin vĩ mô
+      this.isLiquidated = false; // Cháy tài khoản
+      this.isSpectator = false; // Chế độ khán giả
+      this.totalInterestPaid = 0; // Tổng lãi vay đã trả
 
       // Market Data
       this.activeAsset = 'TRS';
@@ -408,7 +529,7 @@
       // Stats
       this.totalTrades = 0;
       this.totalFeesPaid = 0;
-      this.profitByAsset = { TRS: 0, LAN: 0 };
+      this.profitByAsset = { TRS: 0, LAN: 0, MEO: 0 };
 
       // Cooldown
       this.isCooldown = false;
@@ -431,11 +552,19 @@
           driftMomentum: 0,
           momentumTicksLeft: 0,
           postDump: 0
+        },
+        MEO: {
+          currentPrice: ASSETS_CONFIG.MEO.basePrice,
+          prices: [ASSETS_CONFIG.MEO.basePrice],
+          markers: [],
+          driftMomentum: 0,
+          momentumTicksLeft: 0,
+          postDump: 0
         }
       };
 
       // Active News tracking
-      this.pendingNews = []; // News waiting for 2.5s delay
+      this.pendingNews = []; // News waiting for 4.5s delay
       this.triggeredNewsSet = new Set();
     }
 
@@ -444,14 +573,25 @@
       if (this.cooldownTimer) clearTimeout(this.cooldownTimer);
 
       this.cash = INITIAL_CASH;
-      this.holdings = { TRS: 0, LAN: 0 };
-      this.costBasis = { TRS: 0, LAN: 0 };
+      this.holdings = { TRS: 0, LAN: 0, MEO: 0 };
+      this.costBasis = { TRS: 0, LAN: 0, MEO: 0 };
+      this.margin = { TRS: 0, LAN: 0, MEO: 0 };
+      this.borrowed = { TRS: 0, LAN: 0, MEO: 0 };
+      this.lastLeverageUsed = { TRS: 1, LAN: 1, MEO: 1 };
+
+      this.activeLeverage = 1;
+      this.leverageUsesLeft = 3;
+      this.isInterestHiked = false;
+      this.isLiquidated = false;
+      this.isSpectator = false;
+      this.totalInterestPaid = 0;
+
       this.currentTick = 0;
       this.currentSec = 0;
       this.isRunning = false;
       this.totalTrades = 0;
       this.totalFeesPaid = 0;
-      this.profitByAsset = { TRS: 0, LAN: 0 };
+      this.profitByAsset = { TRS: 0, LAN: 0, MEO: 0 };
       this.isCooldown = false;
 
       this.market.TRS = {
@@ -466,6 +606,15 @@
       this.market.LAN = {
         currentPrice: ASSETS_CONFIG.LAN.basePrice,
         prices: [ASSETS_CONFIG.LAN.basePrice],
+        markers: [],
+        driftMomentum: 0,
+        momentumTicksLeft: 0,
+        postDump: 0
+      };
+
+      this.market.MEO = {
+        currentPrice: ASSETS_CONFIG.MEO.basePrice,
+        prices: [ASSETS_CONFIG.MEO.basePrice],
         markers: [],
         driftMomentum: 0,
         momentumTicksLeft: 0,
@@ -489,7 +638,9 @@
     getTotalNetWorth() {
       const valTRS = this.holdings.TRS * this.market.TRS.currentPrice;
       const valLAN = this.holdings.LAN * this.market.LAN.currentPrice;
-      return this.cash + valTRS + valLAN;
+      const valMEO = this.holdings.MEO * this.market.MEO.currentPrice;
+      const totalBorrowed = (this.borrowed.TRS || 0) + (this.borrowed.LAN || 0) + (this.borrowed.MEO || 0);
+      return Math.max(0, this.cash + valTRS + valLAN + valMEO - totalBorrowed);
     }
 
     getPnl() {
@@ -506,13 +657,13 @@
   function updateMarketPrices(state) {
     const phase = state.getCurrentPhase();
 
-    ['TRS', 'LAN'].forEach(assetKey => {
+    ['TRS', 'LAN', 'MEO'].forEach(assetKey => {
       const cfg = ASSETS_CONFIG[assetKey];
       const mkt = state.market[assetKey];
       const prevPrice = mkt.currentPrice;
 
       // 1. Regime Drift
-      let drift = assetKey === 'TRS' ? phase.driftTRS : phase.driftLAN;
+      let drift = assetKey === 'TRS' ? phase.driftTRS : (assetKey === 'LAN' ? phase.driftLAN : phase.driftMEO);
 
       // 2. News Impact Momentum
       if (mkt.momentumTicksLeft > 0) {
@@ -550,6 +701,7 @@
       mkt.currentPrice = newPrice;
       mkt.prices.push(newPrice);
     });
+  }
   }
 
   // =========================================================================
@@ -927,13 +1079,26 @@
         newsHeadlineLAN: document.getElementById('newsHeadlineLAN'),
         newsFillLAN: document.getElementById('newsFillLAN'),
 
+        // News Channel 3: MEO
+        newsCardMEO: document.getElementById('newsCardMEO'),
+        newsIconMEO: document.getElementById('newsIconMEO'),
+        newsSourceMEO: document.getElementById('newsSourceMEO'),
+        newsTrustMEO: document.getElementById('newsTrustMEO'),
+        newsTimerMEO: document.getElementById('newsTimerMEO'),
+        newsCountdownMEO: document.getElementById('newsCountdownMEO'),
+        newsHeadlineMEO: document.getElementById('newsHeadlineMEO'),
+        newsFillMEO: document.getElementById('newsFillMEO'),
+
         // Tabs
         tabTRS: document.getElementById('tabTRS'),
         tabLAN: document.getElementById('tabLAN'),
+        tabMEO: document.getElementById('tabMEO'),
         tabPriceTRS: document.getElementById('tabPriceTRS'),
         tabChangeTRS: document.getElementById('tabChangeTRS'),
         tabPriceLAN: document.getElementById('tabPriceLAN'),
         tabChangeLAN: document.getElementById('tabChangeLAN'),
+        tabPriceMEO: document.getElementById('tabPriceMEO'),
+        tabChangeMEO: document.getElementById('tabChangeMEO'),
 
         // Quick Stats
         currPriceDisplay: document.getElementById('currPriceDisplay'),
@@ -942,6 +1107,26 @@
         currPositionPnl: document.getElementById('currPositionPnl'),
         chartWatermark: document.getElementById('chartWatermark'),
         chartFeeBadge: document.getElementById('chartFeeBadge'),
+
+        // Leverage Toolbar
+        btnLev1: document.getElementById('btnLev1'),
+        btnLev2: document.getElementById('btnLev2'),
+        btnLev5: document.getElementById('btnLev5'),
+        leverageRemaining: document.getElementById('leverageRemaining'),
+        leverageStatusBar: document.getElementById('leverageStatusBar'),
+
+        // Spectator Mode
+        spectatorBanner: document.getElementById('spectatorBanner'),
+        btnSpectatorRestart: document.getElementById('btnSpectatorRestart'),
+
+        // Liquidation Modal
+        liquidationModal: document.getElementById('liquidationModal'),
+        lesLevBad: document.getElementById('lesLevBad'),
+        lesPnlBad: document.getElementById('lesPnlBad'),
+        lesPnlGood: document.getElementById('lesPnlGood'),
+        lesDescGood: document.getElementById('lesDescGood'),
+        btnSpectate: document.getElementById('btnSpectate'),
+        btnRestartFromLiquidation: document.getElementById('btnRestartFromLiquidation'),
 
         // Trading Buttons
         btnBuy25: document.getElementById('btnBuy25'),
@@ -1006,6 +1191,20 @@
       // Asset Tabs
       this.dom.tabTRS.addEventListener('click', () => this.switchAsset('TRS'));
       this.dom.tabLAN.addEventListener('click', () => this.switchAsset('LAN'));
+      if (this.dom.tabMEO) {
+        this.dom.tabMEO.addEventListener('click', () => this.switchAsset('MEO'));
+      }
+
+      // Leverage Buttons
+      if (this.dom.btnLev1) {
+        this.dom.btnLev1.addEventListener('click', () => this.setLeverage(1));
+      }
+      if (this.dom.btnLev2) {
+        this.dom.btnLev2.addEventListener('click', () => this.setLeverage(2));
+      }
+      if (this.dom.btnLev5) {
+        this.dom.btnLev5.addEventListener('click', () => this.setLeverage(5));
+      }
 
       // Buy Buttons
       this.dom.btnBuy25.addEventListener('click', () => this.executeBuy(0.25));
@@ -1016,9 +1215,19 @@
       this.dom.btnSell50.addEventListener('click', () => this.executeSell(0.50));
       this.dom.btnSellAll.addEventListener('click', () => this.executeSell(1.00));
 
-      // Modal Buttons
+      // Modal & Spectator Buttons
       this.dom.btnRestart.addEventListener('click', () => this.restartGame());
       this.dom.btnShare.addEventListener('click', () => this.shareResult());
+
+      if (this.dom.btnSpectate) {
+        this.dom.btnSpectate.addEventListener('click', () => this.enterSpectatorMode());
+      }
+      if (this.dom.btnRestartFromLiquidation) {
+        this.dom.btnRestartFromLiquidation.addEventListener('click', () => this.restartGame());
+      }
+      if (this.dom.btnSpectatorRestart) {
+        this.dom.btnSpectatorRestart.addEventListener('click', () => this.restartGame());
+      }
     }
 
     startGame() {
@@ -1043,33 +1252,72 @@
     }
 
     enableTradingButtons() {
+      if (this.state.isSpectator || this.state.isLiquidated) return;
       [this.dom.btnBuy25, this.dom.btnBuy50, this.dom.btnBuyAll, this.dom.btnSell50, this.dom.btnSellAll].forEach(btn => {
-        btn.removeAttribute('disabled');
-        btn.classList.remove('disabled');
+        if (btn) {
+          btn.removeAttribute('disabled');
+          btn.classList.remove('disabled');
+        }
       });
     }
 
     disableTradingButtons() {
       [this.dom.btnBuy25, this.dom.btnBuy50, this.dom.btnBuyAll, this.dom.btnSell50, this.dom.btnSellAll].forEach(btn => {
-        btn.setAttribute('disabled', 'true');
-        btn.classList.add('disabled');
+        if (btn) {
+          btn.setAttribute('disabled', 'true');
+          btn.classList.add('disabled');
+        }
       });
+    }
+
+    setLeverage(lev) {
+      if (this.state.isSpectator || this.state.isLiquidated) return;
+      if (this.state.selectedLeverage === lev) return;
+
+      if (lev > 1 && this.state.leverageUsesLeft <= 0) {
+        this.showToast('⚠️ Bạn đã dùng hết 3 lượt đòn bẩy ("Khô máu") ván này!', 'warn');
+        return;
+      }
+
+      this.state.selectedLeverage = lev;
+
+      // Update button styles
+      [this.dom.btnLev1, this.dom.btnLev2, this.dom.btnLev5].forEach(btn => {
+        if (btn) btn.classList.remove('active');
+      });
+
+      if (lev === 1 && this.dom.btnLev1) this.dom.btnLev1.classList.add('active');
+      if (lev === 2 && this.dom.btnLev2) this.dom.btnLev2.classList.add('active');
+      if (lev === 5 && this.dom.btnLev5) this.dom.btnLev5.classList.add('active');
+
+      if (lev > 1) {
+        this.showToast(`🔥 Đã bật đòn bẩy x${lev}! Lãi vay sẽ tính khi mở lệnh.`, 'warn');
+      } else {
+        this.showToast('🛡️ Chế độ giao dịch an toàn (Không đòn bẩy 1x)', 'info');
+      }
+      this.updateUI();
     }
 
     switchAsset(ticker) {
       if (this.state.activeAsset === ticker) return;
       this.state.activeAsset = ticker;
 
+      [this.dom.tabTRS, this.dom.tabLAN, this.dom.tabMEO].forEach(t => {
+        if (t) t.classList.remove('active');
+      });
+
       if (ticker === 'TRS') {
         this.dom.tabTRS.classList.add('active');
-        this.dom.tabLAN.classList.remove('active');
         this.dom.chartWatermark.textContent = ASSETS_CONFIG.TRS.watermark;
         this.dom.chartFeeBadge.textContent = 'Phí GD: 0.10%';
-      } else {
+      } else if (ticker === 'LAN') {
         this.dom.tabLAN.classList.add('active');
-        this.dom.tabTRS.classList.remove('active');
         this.dom.chartWatermark.textContent = ASSETS_CONFIG.LAN.watermark;
         this.dom.chartFeeBadge.textContent = 'Phí GD: 0.15%';
+      } else if (ticker === 'MEO') {
+        if (this.dom.tabMEO) this.dom.tabMEO.classList.add('active');
+        this.dom.chartWatermark.textContent = ASSETS_CONFIG.MEO.watermark;
+        this.dom.chartFeeBadge.textContent = 'Phí GD: 0.20% (Trượt All-in 1.5%)';
       }
 
       this.updateUI();
@@ -1087,20 +1335,108 @@
       this.state.currentTick++;
       this.state.currentSec = this.state.currentTick; // 1 tick = 1 giây chuẩn 1000ms
 
-      // Kiểm tra Tin tức lên sóng
+      // 1. Tính lãi vay nếu đang có nợ đòn bẩy
+      const totalDebt = this.state.getTotalDebt();
+      if (totalDebt > 0 && !this.state.isLiquidated) {
+        const ratePerSec = this.state.isInterestHiked ? 0.0020 : 0.0005; // 0.20%/s khi vĩ mô tăng, bình thường 0.05%/s
+        const interest = Math.round(totalDebt * ratePerSec);
+        this.state.totalInterestPaid += interest;
+        this.state.cash -= interest;
+      }
+
+      // 2. Kiểm tra Cháy tài khoản (Liquidation check)
+      if (!this.state.isLiquidated && this.state.hasLeverageActive) {
+        ['TRS', 'LAN', 'MEO'].forEach(assetKey => {
+          const margin = this.state.marginCommitted[assetKey];
+          const debt = this.state.debt[assetKey];
+          const qty = this.state.holdings[assetKey];
+          if (margin > 0 && qty > 0) {
+            const curPrice = this.state.market[assetKey].currentPrice;
+            const posVal = qty * curPrice;
+            const netEquity = posVal - debt;
+            const loss = margin - netEquity;
+            const lossRatio = loss / margin;
+
+            // Nếu lỗ >= 90% vốn ký quỹ của vị thế đòn bẩy -> CHÁY!
+            if (lossRatio >= 0.90) {
+              this.triggerLiquidation(assetKey, margin, debt, qty, curPrice, lossRatio);
+            }
+          }
+        });
+      }
+
+      // 3. Kiểm tra Tin tức lên sóng
       this.checkNewsTriggers();
 
-      // Cập nhật giá theo mô hình xác suất tự nhiên
+      // 4. Cập nhật giá theo mô hình xác suất tự nhiên
       updateMarketPrices(this.state);
 
-      // Vẽ lại biểu đồ & cập nhật giao diện
+      // 5. Vẽ lại biểu đồ & cập nhật giao diện
       this.chart.render();
       this.updateUI();
 
-      // Kiểm tra hết giờ (180 giây = 180 ticks)
+      // 6. Kiểm tra hết giờ (180 giây = 180 ticks)
       if (this.state.currentTick >= TOTAL_TICKS) {
         this.endSession();
       }
+    }
+
+    triggerLiquidation(assetKey, margin, debt, qty, curPrice, lossRatio) {
+      this.state.isLiquidated = true;
+      this.state.sound.playLiquidation();
+
+      // Thu hồi vị thế cưỡng chế
+      const posVal = qty * curPrice;
+      const fee = posVal * ASSETS_CONFIG[assetKey].feeRate;
+      const netVal = posVal - fee;
+      const remainingCash = Math.max(0, netVal - debt);
+
+      this.state.cash += remainingCash;
+      this.state.holdings[assetKey] = 0;
+      this.state.debt[assetKey] = 0;
+      this.state.marginCommitted[assetKey] = 0;
+      this.state.costBasis[assetKey] = 0;
+      this.state.hasLeverageActive = Object.values(this.state.debt).some(d => d > 0);
+
+      // Hiệu ứng nháy đỏ màn hình
+      document.body.classList.add('screen-liquidate-flash');
+      setTimeout(() => {
+        document.body.classList.remove('screen-liquidate-flash');
+      }, 1500);
+
+      // Điền thông tin vào thẻ Bài học đòn bẩy
+      const lev = this.state.selectedLeverage || 2;
+      const priceDropPct = Math.min(99, Math.abs(lossRatio / lev * 100)).toFixed(1);
+      const equityLeft1x = (100 - parseFloat(priceDropPct)).toFixed(1);
+
+      if (this.dom.lesLevBad) this.dom.lesLevBad.textContent = `Vị thế đòn bẩy x${lev}`;
+      if (this.dom.lesPnlBad) this.dom.lesPnlBad.textContent = `-90% (CHÁY SẠCH VỐN VỊ THẾ)`;
+      if (this.dom.lesPnlGood) this.dom.lesPnlGood.textContent = `Chỉ giảm -${priceDropPct}% (Giữ lại ${equityLeft1x}% vốn)`;
+      if (this.dom.lesDescGood) {
+        this.dom.lesDescGood.textContent = `Nếu chỉ giao dịch an toàn 1x (không dùng đòn bẩy), đợt sập giá vừa rồi chỉ làm bạn giảm -${priceDropPct}%, bạn vẫn còn ${equityLeft1x}% vốn gốc để tái cơ cấu danh mục!`;
+      }
+
+      // Khóa toàn bộ nút giao dịch
+      this.disableTradingButtons();
+
+      // Hiện modal Cháy tài khoản
+      if (this.dom.liquidationModal) {
+        this.dom.liquidationModal.style.display = 'flex';
+      }
+
+      this.showToast('💥 CHÁY TÀI KHOẢN! Vị thế đòn bẩy đã bị thanh lý cưỡng chế!', 'danger');
+    }
+
+    enterSpectatorMode() {
+      this.state.isSpectator = true;
+      if (this.dom.liquidationModal) {
+        this.dom.liquidationModal.style.display = 'none';
+      }
+      if (this.dom.spectatorBanner) {
+        this.dom.spectatorBanner.style.display = 'flex';
+      }
+      this.disableTradingButtons();
+      this.showToast('👀 Đang ở chế độ Khán Giả. Hãy quan sát thị trường diễn biến đến hết 180s!', 'warn');
     }
 
     // Kiểm tra và đẩy tin tức vào hàng chờ
@@ -1114,7 +1450,7 @@
       });
     }
 
-    // Đẩy tin tức lên 2 khung riêng biệt (TRS / LAN) hoặc đồng loạt cả 2 khi có tin Vĩ mô
+    // Đẩy tin tức lên 3 khung riêng biệt (TRS / LAN / MEO) hoặc đồng loạt cả 3 khi có tin Vĩ mô
     queueNews(newsItem) {
       this.state.sound.playNews();
 
@@ -1130,23 +1466,30 @@
       const target = newsItem.target;
 
       const renderCard = (cardEl, iconEl, srcEl, trustEl, countdownEl, headlineEl, fillEl, isMacro) => {
+        if (!cardEl) return;
         cardEl.className = 'news-card ' + (newsItem.cardClass || 'news-chinh-thong') + (isMacro ? ' macro-alert' : '');
-        iconEl.textContent = newsItem.icon;
-        srcEl.textContent = isMacro ? 'VĨ MÔ CHUNG' : newsItem.sourceName;
-        trustEl.textContent = newsItem.trustText;
-        trustEl.className = 'news-trust-badge ' + newsItem.trustClass;
-        headlineEl.textContent = newsItem.headline;
-
-        // Slide & Pop Animation
-        headlineEl.classList.remove('news-pop');
-        void headlineEl.offsetWidth;
-        headlineEl.classList.add('news-pop');
+        if (iconEl) iconEl.textContent = newsItem.icon;
+        if (srcEl) srcEl.textContent = isMacro ? 'VĨ MÔ TOÀN THỊ TRƯỜNG' : newsItem.sourceName;
+        if (trustEl) {
+          trustEl.textContent = newsItem.trustText;
+          trustEl.className = 'news-trust-badge ' + newsItem.trustClass;
+        }
+        if (headlineEl) {
+          headlineEl.textContent = newsItem.headline;
+          headlineEl.classList.remove('news-pop');
+          void headlineEl.offsetWidth;
+          headlineEl.classList.add('news-pop');
+        }
 
         // Bắt đầu đếm ngược 4.5s
-        countdownEl.parentElement.classList.remove('impacting');
-        countdownEl.textContent = '4.5s';
-        fillEl.style.width = '100%';
-        fillEl.classList.remove('done');
+        if (countdownEl && countdownEl.parentElement) {
+          countdownEl.parentElement.classList.remove('impacting');
+          countdownEl.textContent = '4.5s';
+        }
+        if (fillEl) {
+          fillEl.style.width = '100%';
+          fillEl.classList.remove('done');
+        }
       };
 
       if (target === 'TRS') {
@@ -1155,12 +1498,22 @@
       } else if (target === 'LAN') {
         renderCard(this.dom.newsCardLAN, this.dom.newsIconLAN, this.dom.newsSourceLAN, this.dom.newsTrustLAN, this.dom.newsCountdownLAN, this.dom.newsHeadlineLAN, this.dom.newsFillLAN, false);
         this.showToast(`📢 LAN: Tin mới vừa lên sàn! (Tác động sau 4.5s)`, 'warn');
+      } else if (target === 'MEO') {
+        renderCard(this.dom.newsCardMEO, this.dom.newsIconMEO, this.dom.newsSourceMEO, this.dom.newsTrustMEO, this.dom.newsCountdownMEO, this.dom.newsHeadlineMEO, this.dom.newsFillMEO, false);
+        this.showToast(`📢 MEO: Tin sốt dẻo về Coin Mèo! (Tác động sau 4.5s)`, 'warn');
       } else if (target === 'ALL') {
-        // VĨ MÔ: Hiển thị đồng loạt ở cả 2 khung với viền đỏ nổi bật!
+        // VĨ MÔ: Hiển thị đồng loạt ở cả 3 khung với viền đỏ nổi bật!
         renderCard(this.dom.newsCardTRS, this.dom.newsIconTRS, this.dom.newsSourceTRS, this.dom.newsTrustTRS, this.dom.newsCountdownTRS, this.dom.newsHeadlineTRS, this.dom.newsFillTRS, true);
         renderCard(this.dom.newsCardLAN, this.dom.newsIconLAN, this.dom.newsSourceLAN, this.dom.newsTrustLAN, this.dom.newsCountdownLAN, this.dom.newsHeadlineLAN, this.dom.newsFillLAN, true);
+        renderCard(this.dom.newsCardMEO, this.dom.newsIconMEO, this.dom.newsSourceMEO, this.dom.newsTrustMEO, this.dom.newsCountdownMEO, this.dom.newsHeadlineMEO, this.dom.newsFillMEO, true);
         this.state.sound.playCrash();
-        this.showToast(`🚨 TIN VĨ MÔ TOÀN SÀN: Ảnh hưởng cả 2 mã! (Tác động sau 4.5s)`, 'danger');
+
+        if (newsItem.targetSec === 152) {
+          this.state.isInterestHiked = true;
+          this.showToast(`🚨 LÃI SUẤT TĂNG VỌT! Lãi vay đòn bẩy tăng vọt gấp 4 lần (0.20%/s)!`, 'danger');
+        } else {
+          this.showToast(`🚨 TIN VĨ MÔ TOÀN SÀN: Ảnh hưởng toàn bộ thị trường! (Tác động sau 4.5s)`, 'danger');
+        }
       }
     }
 
@@ -1176,6 +1529,7 @@
         const pctWidth = (remaining / pNews.delayMs) * 100;
 
         const updateTimer = (countdownEl, fillEl) => {
+          if (!countdownEl || !fillEl) return;
           if (remaining > 0) {
             countdownEl.textContent = `${secondsLeft}s`;
             fillEl.style.width = `${pctWidth}%`;
@@ -1186,9 +1540,12 @@
           updateTimer(this.dom.newsCountdownTRS, this.dom.newsFillTRS);
         } else if (pNews.target === 'LAN') {
           updateTimer(this.dom.newsCountdownLAN, this.dom.newsFillLAN);
+        } else if (pNews.target === 'MEO') {
+          updateTimer(this.dom.newsCountdownMEO, this.dom.newsFillMEO);
         } else if (pNews.target === 'ALL') {
           updateTimer(this.dom.newsCountdownTRS, this.dom.newsFillTRS);
           updateTimer(this.dom.newsCountdownLAN, this.dom.newsFillLAN);
+          updateTimer(this.dom.newsCountdownMEO, this.dom.newsFillMEO);
         }
 
         // Kích hoạt khi hết 4.5s
@@ -1196,6 +1553,7 @@
           pNews.applied = true;
 
           const setImpacting = (countdownEl, fillEl) => {
+            if (!countdownEl || !fillEl) return;
             countdownEl.parentElement.classList.add('impacting');
             countdownEl.textContent = '💥 Đang tác động!';
             fillEl.style.width = '0%';
@@ -1206,9 +1564,12 @@
             setImpacting(this.dom.newsCountdownTRS, this.dom.newsFillTRS);
           } else if (pNews.target === 'LAN') {
             setImpacting(this.dom.newsCountdownLAN, this.dom.newsFillLAN);
+          } else if (pNews.target === 'MEO') {
+            setImpacting(this.dom.newsCountdownMEO, this.dom.newsFillMEO);
           } else if (pNews.target === 'ALL') {
             setImpacting(this.dom.newsCountdownTRS, this.dom.newsFillTRS);
             setImpacting(this.dom.newsCountdownLAN, this.dom.newsFillLAN);
+            setImpacting(this.dom.newsCountdownMEO, this.dom.newsFillMEO);
           }
 
           this.applyNewsImpact(pNews);
@@ -1222,14 +1583,17 @@
 
       const applyToAsset = (key) => {
         const mkt = this.state.market[key];
-        mkt.driftMomentum = factor;
-        mkt.momentumTicksLeft = ticks;
-        mkt.postDump = postDump || 0;
+        if (mkt) {
+          mkt.driftMomentum = factor;
+          mkt.momentumTicksLeft = ticks;
+          mkt.postDump = postDump || 0;
+        }
       };
 
       if (asset === 'ALL') {
         applyToAsset('TRS');
         applyToAsset('LAN');
+        applyToAsset('MEO');
       } else {
         applyToAsset(asset);
       }
@@ -1243,7 +1607,7 @@
     }
 
     // =======================================================================
-    // TRADING ACTIONS (Buy / Sell / Anti-spam Cooldown)
+    // TRADING ACTIONS (Buy / Sell / Leverage / Anti-spam Cooldown)
     // =======================================================================
     triggerCooldown() {
       this.state.isCooldown = true;
@@ -1252,7 +1616,7 @@
 
       // Disable buttons
       [this.dom.btnBuy25, this.dom.btnBuy50, this.dom.btnBuyAll, this.dom.btnSell50, this.dom.btnSellAll].forEach(btn => {
-        btn.classList.add('disabled');
+        if (btn) btn.classList.add('disabled');
       });
 
       // Animate cooldown
@@ -1264,28 +1628,44 @@
       if (this.state.cooldownTimer) clearTimeout(this.state.cooldownTimer);
       this.state.cooldownTimer = setTimeout(() => {
         this.state.isCooldown = false;
-        [this.dom.btnBuy25, this.dom.btnBuy50, this.dom.btnBuyAll, this.dom.btnSell50, this.dom.btnSellAll].forEach(btn => {
-          btn.classList.remove('disabled');
-        });
+        if (!this.state.isSpectator && !this.state.isLiquidated) {
+          [this.dom.btnBuy25, this.dom.btnBuy50, this.dom.btnBuyAll, this.dom.btnSell50, this.dom.btnSellAll].forEach(btn => {
+            if (btn) btn.classList.remove('disabled');
+          });
+        }
       }, COOLDOWN_MS);
     }
 
     executeBuy(fraction) {
-      if (this.state.isCooldown || !this.state.isRunning) return;
+      if (this.state.isCooldown || !this.state.isRunning || this.state.isSpectator || this.state.isLiquidated) return;
 
       const assetKey = this.state.activeAsset;
       const cfg = ASSETS_CONFIG[assetKey];
-      const currentPrice = this.state.market[assetKey].currentPrice;
+      let currentPrice = this.state.market[assetKey].currentPrice;
+
+      // Trượt giá 1.5% khi All-in MEO (thanh khoản mỏng)
+      let slippageNote = '';
+      if (assetKey === 'MEO' && fraction === 1.0) {
+        currentPrice = Math.round(currentPrice * 1.015);
+        slippageNote = ' [Trượt giá +1.5%]';
+      }
+
+      const L = this.state.selectedLeverage || 1;
+      if (L > 1 && this.state.leverageUsesLeft <= 0) {
+        this.showToast('⚠️ Đã dùng hết 3 lượt đòn bẩy!', 'warn');
+        return;
+      }
 
       const allocatedCash = this.state.cash * fraction;
-      if (allocatedCash < currentPrice * (1 + cfg.feeRate)) {
+
+      // Mỗi cổ phiếu/coin cần: Tiền ký quỹ (Price / L) + Phí giao dịch (Price * feeRate)
+      const cashNeededPerUnit = currentPrice * (1 / L + cfg.feeRate);
+      if (allocatedCash < cashNeededPerUnit) {
         this.showToast('⚠️ Không đủ tiền mặt để mua tối thiểu 1 đơn vị!', 'warn');
         return;
       }
 
-      // Calculate quantity with fee accounted for
-      const cashForShares = allocatedCash / (1 + cfg.feeRate);
-      const quantity = Math.floor(cashForShares / currentPrice);
+      const quantity = Math.floor(allocatedCash / cashNeededPerUnit);
       if (quantity <= 0) {
         this.showToast('⚠️ Số tiền phân bổ quá nhỏ!', 'warn');
         return;
@@ -1293,15 +1673,26 @@
 
       const rawAmount = quantity * currentPrice;
       const fee = rawAmount * cfg.feeRate;
-      const totalCost = rawAmount + fee;
+      const marginCommitted = rawAmount / L;
+      const debtBorrowed = rawAmount - marginCommitted;
+      const totalCashDeducted = marginCommitted + fee;
 
-      // Deduct cash & update state
-      this.state.cash -= totalCost;
-      const prevQty = this.state.holdings[assetKey];
-      const prevCost = this.state.costBasis[assetKey];
+      if (this.state.cash < totalCashDeducted) {
+        this.showToast('⚠️ Số dư tiền mặt không đủ!', 'warn');
+        return;
+      }
 
+      // Trừ tiền mặt & cập nhật dư nợ
+      this.state.cash -= totalCashDeducted;
       this.state.holdings[assetKey] += quantity;
-      this.state.costBasis[assetKey] = prevCost + totalCost;
+      this.state.costBasis[assetKey] += totalCashDeducted;
+
+      if (L > 1) {
+        this.state.leverageUsesLeft--;
+        this.state.debt[assetKey] += debtBorrowed;
+        this.state.marginCommitted[assetKey] += marginCommitted;
+        this.state.hasLeverageActive = true;
+      }
 
       this.state.totalTrades++;
       this.state.totalFeesPaid += fee;
@@ -1313,22 +1704,25 @@
         price: currentPrice,
         type: 'BUY',
         quantity,
-        amount: totalCost
+        amount: totalCashDeducted,
+        leverage: L
       });
 
       this.state.sound.playBuy();
       this.triggerCooldown();
-      this.showToast(`✅ Khớp MUA ${quantity} ${assetKey} giá ${formatNumber(currentPrice)}đ (Phí: ${formatNumber(fee)}đ)`, 'success');
+
+      let levNote = L > 1 ? ` (Đòn bẩy x${L}, Vay: ${formatNumber(debtBorrowed)}đ)` : '';
+      this.showToast(`✅ Khớp MUA ${formatNumber(quantity)} ${assetKey} giá ${formatNumber(currentPrice)}đ${levNote}${slippageNote}`, 'success');
       this.updateUI();
       this.chart.render();
     }
 
     executeSell(fraction) {
-      if (this.state.isCooldown || !this.state.isRunning) return;
+      if (this.state.isCooldown || !this.state.isRunning || this.state.isSpectator || this.state.isLiquidated) return;
 
       const assetKey = this.state.activeAsset;
       const cfg = ASSETS_CONFIG[assetKey];
-      const currentPrice = this.state.market[assetKey].currentPrice;
+      let currentPrice = this.state.market[assetKey].currentPrice;
       const holding = this.state.holdings[assetKey];
 
       if (holding <= 0) {
@@ -1336,25 +1730,43 @@
         return;
       }
 
+      // Trượt giá -1.5% khi xả toàn bộ MEO
+      let slippageNote = '';
+      if (assetKey === 'MEO' && fraction === 1.0) {
+        currentPrice = Math.round(currentPrice * 0.985);
+        slippageNote = ' [Trượt giá -1.5%]';
+      }
+
       let quantity = fraction === 1 ? holding : Math.floor(holding * fraction);
       if (quantity <= 0) quantity = 1;
 
+      const sellRatio = quantity / holding;
       const rawRevenue = quantity * currentPrice;
       const fee = rawRevenue * cfg.feeRate;
-      const netReceived = rawRevenue - fee;
+      const netRevenue = rawRevenue - fee;
+
+      // Trả nợ vay tương ứng với tỷ lệ vị thế được bán
+      const debtToRepay = Math.round(this.state.debt[assetKey] * sellRatio);
+      const netCashToWallet = Math.max(0, netRevenue - debtToRepay);
+
+      this.state.debt[assetKey] = Math.max(0, this.state.debt[assetKey] - debtToRepay);
+      this.state.marginCommitted[assetKey] = Math.max(0, this.state.marginCommitted[assetKey] * (1 - sellRatio));
+      this.state.hasLeverageActive = Object.values(this.state.debt).some(d => d > 0);
 
       // Track Profit / Loss
       const avgCostPerShare = this.state.costBasis[assetKey] / holding;
       const soldCost = avgCostPerShare * quantity;
-      const profit = netReceived - soldCost;
+      const profit = netCashToWallet - soldCost;
       this.state.profitByAsset[assetKey] += profit;
 
       // Update state
-      this.state.cash += netReceived;
+      this.state.cash += netCashToWallet;
       this.state.holdings[assetKey] -= quantity;
       this.state.costBasis[assetKey] -= soldCost;
       if (this.state.holdings[assetKey] <= 0) {
         this.state.costBasis[assetKey] = 0;
+        this.state.debt[assetKey] = 0;
+        this.state.marginCommitted[assetKey] = 0;
       }
 
       this.state.totalTrades++;
@@ -1367,19 +1779,22 @@
         price: currentPrice,
         type: 'SELL',
         quantity,
-        amount: netReceived
+        amount: netCashToWallet
       });
 
       this.state.sound.playSell();
       this.triggerCooldown();
+
       const pnlSign = profit >= 0 ? '+' : '';
-      this.showToast(`⚡ BÁN ${quantity} ${assetKey} thu về ${formatNumber(netReceived)}đ (${pnlSign}${formatNumber(profit)}đ)`, profit >= 0 ? 'success' : 'warn');
+      let debtNote = debtToRepay > 0 ? ` [Trả nợ: ${formatNumber(debtToRepay)}đ]` : '';
+      this.showToast(`⚡ BÁN ${formatNumber(quantity)} ${assetKey} thu ròng ${formatNumber(netCashToWallet)}đ (${pnlSign}${formatNumber(profit)}đ)${debtNote}${slippageNote}`, profit >= 0 ? 'success' : 'warn');
       this.updateUI();
       this.chart.render();
     }
 
     showToast(message, type = 'info') {
       const toast = this.dom.orderToast;
+      if (!toast) return;
       toast.textContent = message;
       toast.className = `order-toast visible ${type}`;
 
@@ -1416,27 +1831,36 @@
 
       // Cash & Holdings
       this.dom.cashBalance.textContent = `${formatNumber(this.state.cash)} đ`;
-      this.dom.holdingsSummary.textContent = `TRS: ${formatNumber(this.state.holdings.TRS)} | LAN: ${formatNumber(this.state.holdings.LAN)}`;
+      this.dom.holdingsSummary.textContent = `TRS: ${formatNumber(this.state.holdings.TRS)} | LAN: ${formatNumber(this.state.holdings.LAN)} | MEO: ${formatNumber(this.state.holdings.MEO)}`;
 
       // Economic Cycle Badge
       const phase = this.state.getCurrentPhase();
       this.dom.cycleName.textContent = phase.name;
       this.dom.cycleBadge.className = `meta-cycle ${phase.badgeClass}`;
 
-      // Tab prices & changes
-      ['TRS', 'LAN'].forEach(ticker => {
+      // Tab prices & changes for TRS, LAN, MEO
+      ['TRS', 'LAN', 'MEO'].forEach(ticker => {
         const mkt = this.state.market[ticker];
         const base = ASSETS_CONFIG[ticker].basePrice;
         const cur = mkt.currentPrice;
         const changePct = ((cur - base) / base) * 100;
         const isBull = changePct >= 0;
 
-        const priceEl = ticker === 'TRS' ? this.dom.tabPriceTRS : this.dom.tabPriceLAN;
-        const changeEl = ticker === 'TRS' ? this.dom.tabChangeTRS : this.dom.tabChangeLAN;
+        let priceEl = this.dom.tabPriceTRS;
+        let changeEl = this.dom.tabChangeTRS;
+        if (ticker === 'LAN') {
+          priceEl = this.dom.tabPriceLAN;
+          changeEl = this.dom.tabChangeLAN;
+        } else if (ticker === 'MEO') {
+          priceEl = this.dom.tabPriceMEO;
+          changeEl = this.dom.tabChangeMEO;
+        }
 
-        priceEl.textContent = `${formatNumber(cur)} đ`;
-        changeEl.textContent = `${isBull ? '+' : ''}${changePct.toFixed(2)}%`;
-        changeEl.className = `tab-change mono ${isBull ? 'up' : 'down'}`;
+        if (priceEl && changeEl) {
+          priceEl.textContent = `${formatNumber(cur)} đ`;
+          changeEl.textContent = `${isBull ? '+' : ''}${changePct.toFixed(2)}%`;
+          changeEl.className = `tab-change mono ${isBull ? 'up' : 'down'}`;
+        }
       });
 
       // Quick bar for active asset
@@ -1446,7 +1870,7 @@
       const positionVal = holding * activePrice;
 
       this.dom.currPriceDisplay.textContent = `${formatNumber(activePrice)} đ`;
-      this.dom.currHoldingDisplay.textContent = `${formatNumber(holding)} cp`;
+      this.dom.currHoldingDisplay.textContent = `${formatNumber(holding)} ${ASSETS_CONFIG[activeTicker].unit}`;
       this.dom.currPositionValue.textContent = `${formatNumber(positionVal)} đ`;
 
       if (holding > 0) {
@@ -1461,12 +1885,32 @@
         this.dom.currPositionPnl.style.color = 'var(--text-muted)';
       }
 
+      // Leverage Toolbar UI
+      if (this.dom.leverageRemaining) {
+        this.dom.leverageRemaining.textContent = `${this.state.leverageUsesLeft}/3 lượt`;
+      }
+
+      const totalDebt = this.state.getTotalDebt();
+      if (this.dom.leverageStatusBar) {
+        if (totalDebt > 0) {
+          const rateDesc = this.state.isInterestHiked ? '0.20%/s (TĂNG SỐC)' : '0.05%/s';
+          this.dom.leverageStatusBar.style.display = 'flex';
+          this.dom.leverageStatusBar.innerHTML = `
+            <span>🔥 Dư nợ đòn bẩy: <strong>${formatNumber(totalDebt)}đ</strong></span>
+            <span>Lãi vay: <strong style="color:var(--color-orange)">${rateDesc}</strong> (Đã trả: ${formatNumber(this.state.totalInterestPaid)}đ)</span>
+          `;
+        } else {
+          this.dom.leverageStatusBar.style.display = 'none';
+        }
+      }
+
       // Button estimate labels
-      const buy25Amt = this.state.cash * 0.25;
-      const buy50Amt = this.state.cash * 0.50;
+      const L = this.state.selectedLeverage || 1;
+      const buy25Amt = (this.state.cash * 0.25) * L;
+      const buy50Amt = (this.state.cash * 0.50) * L;
       this.dom.buy25Est.textContent = formatCurrencyCompact(buy25Amt);
       this.dom.buy50Est.textContent = formatCurrencyCompact(buy50Amt);
-      this.dom.sell50Est.textContent = holding > 0 ? `${formatNumber(Math.floor(holding * 0.5))} cp` : '0 cp';
+      this.dom.sell50Est.textContent = holding > 0 ? `${formatNumber(Math.floor(holding * 0.5))} ${ASSETS_CONFIG[activeTicker].unit}` : `0 ${ASSETS_CONFIG[activeTicker].unit}`;
     }
 
     // =======================================================================
@@ -1476,8 +1920,8 @@
       if (this.state.timerInterval) clearInterval(this.state.timerInterval);
       this.state.isRunning = false;
 
-      // Auto-liquidate any remaining shares at final tick's closing market price
-      ['TRS', 'LAN'].forEach(assetKey => {
+      // Tự động thanh lý các vị thế còn lại theo giá đóng cửa tick cuối cùng & trả nợ
+      ['TRS', 'LAN', 'MEO'].forEach(assetKey => {
         const qty = this.state.holdings[assetKey];
         if (qty > 0) {
           const cfg = ASSETS_CONFIG[assetKey];
@@ -1492,12 +1936,22 @@
         }
       });
 
+      // Trả nốt nợ nếu còn
+      const remainingDebt = this.state.getTotalDebt();
+      this.state.cash -= remainingDebt;
+      this.state.debt.TRS = 0;
+      this.state.debt.LAN = 0;
+      this.state.debt.MEO = 0;
+      this.state.marginCommitted.TRS = 0;
+      this.state.marginCommitted.LAN = 0;
+      this.state.marginCommitted.MEO = 0;
+
       const { diff, pct, netWorth } = this.state.getPnl();
-      const isWinner = pct >= 0;
+      const isWinner = pct >= 0 && !this.state.isLiquidated;
       this.state.sound.playGameOver(isWinner);
 
-      // Rank evaluation
-      const rank = evaluateRank(pct);
+      // Đánh giá danh hiệu (xét trường hợp Cháy tài khoản)
+      const rank = evaluateRank(pct, this.state.isLiquidated);
 
       // Populate Summary Modal
       this.dom.summaryRankIcon.textContent = rank.icon;
@@ -1512,18 +1966,20 @@
       this.dom.sumNetProfit.style.color = diff >= 0 ? 'var(--color-green)' : 'var(--color-red)';
 
       this.dom.sumTradeCount.textContent = `${this.state.totalTrades} lệnh`;
-      this.dom.sumTotalFees.textContent = `${formatNumber(Math.round(this.state.totalFeesPaid))} đ`;
+      this.dom.sumTotalFees.textContent = `${formatNumber(Math.round(this.state.totalFeesPaid + this.state.totalInterestPaid))} đ`;
 
       // Best asset
       let best = 'Chưa giao dịch';
-      if (this.state.profitByAsset.TRS > 0 || this.state.profitByAsset.LAN > 0) {
-        if (this.state.profitByAsset.TRS >= this.state.profitByAsset.LAN) {
-          best = `Trà Sữa TRS (+${formatNumber(this.state.profitByAsset.TRS)} đ)`;
-        } else {
-          best = `Lan Đột Biến LAN (+${formatNumber(this.state.profitByAsset.LAN)} đ)`;
-        }
+      const profits = [
+        { key: 'TRS', name: 'Trà Sữa TRS', p: this.state.profitByAsset.TRS },
+        { key: 'LAN', name: 'Lan Đột Biến LAN', p: this.state.profitByAsset.LAN },
+        { key: 'MEO', name: 'Coin Mèo Béo MEO', p: this.state.profitByAsset.MEO }
+      ].sort((a, b) => b.p - a.p);
+
+      if (profits[0].p > 0) {
+        best = `${profits[0].name} (+${formatNumber(profits[0].p)} đ)`;
       } else if (this.state.totalTrades > 0) {
-        best = 'Cả 2 mã đều đu đỉnh 😭';
+        best = this.state.isLiquidated ? 'Cháy sạch tài khoản vì đòn bẩy 😭' : 'Cả danh mục đều đu đỉnh 😭';
       }
       this.dom.sumBestAsset.textContent = best;
 
@@ -1533,31 +1989,41 @@
 
     resetNewsCards() {
       const resetOne = (cardEl, iconEl, srcEl, trustEl, countdownEl, headlineEl, fillEl, assetName) => {
+        if (!cardEl) return;
         cardEl.className = 'news-card news-chinh-thong';
-        iconEl.textContent = '🏛️';
-        srcEl.textContent = 'CHÍNH THỐNG';
+        if (iconEl) iconEl.textContent = '🏛️';
+        if (srcEl) srcEl.textContent = 'CHÍNH THỐNG';
         if (trustEl) {
           trustEl.textContent = 'Tin cậy: Cao';
           trustEl.className = 'news-trust-badge trust-high';
         }
-        headlineEl.textContent = `Chưa có tin mới cho ${assetName}. Thị trường đang mở cửa thăm dò.`;
+        if (headlineEl) {
+          headlineEl.textContent = `Chưa có tin mới cho ${assetName}. Thị trường đang mở cửa thăm dò.`;
+        }
         if (countdownEl && countdownEl.parentElement) {
           countdownEl.parentElement.classList.remove('impacting');
+          countdownEl.textContent = '--';
         }
-        countdownEl.textContent = '--';
-        fillEl.style.width = '0%';
-        fillEl.classList.remove('done');
+        if (fillEl) {
+          fillEl.style.width = '0%';
+          fillEl.classList.remove('done');
+        }
       };
 
       resetOne(this.dom.newsCardTRS, this.dom.newsIconTRS, this.dom.newsSourceTRS, this.dom.newsTrustTRS, this.dom.newsCountdownTRS, this.dom.newsHeadlineTRS, this.dom.newsFillTRS, 'TRS');
       resetOne(this.dom.newsCardLAN, this.dom.newsIconLAN, this.dom.newsSourceLAN, this.dom.newsTrustLAN, this.dom.newsCountdownLAN, this.dom.newsHeadlineLAN, this.dom.newsFillLAN, 'LAN');
+      resetOne(this.dom.newsCardMEO, this.dom.newsIconMEO, this.dom.newsSourceMEO, this.dom.newsTrustMEO, this.dom.newsCountdownMEO, this.dom.newsHeadlineMEO, this.dom.newsFillMEO, 'MEO');
     }
 
     restartGame() {
       this.dom.summaryModal.style.display = 'none';
+      if (this.dom.liquidationModal) this.dom.liquidationModal.style.display = 'none';
+      if (this.dom.spectatorBanner) this.dom.spectatorBanner.style.display = 'none';
+      document.body.classList.remove('screen-liquidate-flash');
+
       this.state.reset();
 
-      // Reset 2 khung tin tức
+      // Reset 3 khung tin tức
       this.resetNewsCards();
 
       // Hiện lại màn hình chờ & khóa nút giao dịch
@@ -1566,6 +2032,7 @@
       }
       this.disableTradingButtons();
 
+      this.setLeverage(1);
       this.switchAsset('TRS');
       this.updateUI();
       this.chart.resize();
@@ -1574,7 +2041,7 @@
 
     shareResult() {
       const { pct, netWorth } = this.state.getPnl();
-      const rank = evaluateRank(pct);
+      const rank = evaluateRank(pct, this.state.isLiquidated);
       const text = `🏆 [ĐỈNH HAY ĐÁY?] Vừa kết thúc phiên giao dịch 180s:\n` +
         `• Danh hiệu: ${rank.icon} ${rank.title}\n` +
         `• Tổng tài sản: ${formatNumber(netWorth)} VNĐ (${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%)\n` +
@@ -1597,7 +2064,15 @@
   // =========================================================================
   // 8. RANKINGS & FORMATTING UTILITIES
   // =========================================================================
-  function evaluateRank(pnlPercent) {
+  function evaluateRank(pnlPercent, isLiquidated = false) {
+    if (isLiquidated) {
+      return {
+        icon: '🏝️',
+        title: 'Chủ Tịch Hội Những Người Ra Đảo',
+        quote: 'Say đòn bẩy là cúng sạch tài khoản cho sàn! Ra đảo ngắm biển hóng gió ngẫm sự đời!'
+      };
+    }
+
     if (pnlPercent > 500) {
       return {
         icon: '🦈',

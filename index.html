@@ -62,16 +62,25 @@
         </div>
         <div class="cash-row">
           <span>Tiền mặt: <strong id="cashBalance" class="mono">100,000,000 đ</strong></span>
-          <span class="holdings-summary" id="holdingsSummary">TRS: 0 | LAN: 0</span>
+          <span class="holdings-summary" id="holdingsSummary">TRS: 0 | LAN: 0 | MEO: 0</span>
         </div>
       </div>
     </header>
+
+    <!-- BANNER CHẾ ĐỘ KHÁN GIẢ (KHI CHÁY TÀI KHOẢN) -->
+    <div class="spectator-banner" id="spectatorBanner" style="display: none;">
+      <div class="spectator-info">
+        <span class="spectator-dot"></span>
+        <span class="spectator-text">👀 <strong>CHẾ ĐỘ KHÁN GIẢ:</strong> Bạn đã bị thanh lý (ra đảo)! Đang quan sát nốt thị trường.</span>
+      </div>
+      <button class="btn-spectator-restart" id="btnSpectatorRestart">🔄 Chơi ván mới ngay</button>
+    </div>
 
     <!-- MAIN DASHBOARD WORKSPACE (DESKTOP: 2-COLUMN; MOBILE: 1-COLUMN) -->
     <div class="terminal-workspace">
       <!-- CỘT TRÁI (DESKTOP): CHART & MARKET (~68%) -->
       <main class="chart-section">
-        <!-- ASSET TABS -->
+        <!-- ASSET TABS (TRS / LAN / MEO) -->
         <div class="market-selector">
           <button class="asset-tab active" data-asset="TRS" id="tabTRS">
             <div class="tab-header">
@@ -94,6 +103,18 @@
             <div class="tab-price-row">
               <span class="tab-price mono" id="tabPriceLAN">250,000 đ</span>
               <span class="tab-change mono up" id="tabChangeLAN">+0.00%</span>
+            </div>
+          </button>
+
+          <button class="asset-tab" data-asset="MEO" id="tabMEO">
+            <div class="tab-header">
+              <span class="ticker">MEO</span>
+              <span class="asset-tag meme-vol">⚡ MEME COIN</span>
+            </div>
+            <div class="tab-sub">Coin Mèo Béo Siêu Tốc</div>
+            <div class="tab-price-row">
+              <span class="tab-price mono" id="tabPriceMEO">10,000 đ</span>
+              <span class="tab-change mono up" id="tabChangeMEO">+0.00%</span>
             </div>
           </button>
         </div>
@@ -132,7 +153,7 @@
 
       <!-- CỘT PHẢI (DESKTOP): SIDEBAR NEWS & TRADING CONTROLS (~32%) -->
       <aside class="terminal-sidebar">
-        <!-- BREAKING NEWS CONTAINER (2 DEDICATED CARDS: TRS & LAN) -->
+        <!-- BREAKING NEWS CONTAINER (3 DEDICATED CARDS: TRS, LAN & MEO) -->
         <section class="news-duo-wrapper">
           <!-- KHUNG 1: TIN NÓNG TRS (TRÀ SỮA) -->
           <div class="news-card news-chinh-thong" id="newsCardTRS">
@@ -181,16 +202,59 @@
               <div class="news-progress-fill" id="newsFillLAN" style="width: 0%;"></div>
             </div>
           </div>
+
+          <!-- KHUNG 3: TIN NÓNG MEO (COIN MÈO BÉO) -->
+          <div class="news-card news-chinh-thong" id="newsCardMEO">
+            <div class="news-meta-row">
+              <div class="news-asset-badge meo-tag">MEO • MÈO BÉO</div>
+              <div class="news-source-badge" id="newsSourceTagMEO">
+                <span class="news-icon" id="newsIconMEO">🐱</span>
+                <span class="news-source-name" id="newsSourceMEO">CHÍNH THỐNG</span>
+                <span class="news-trust-badge trust-high" id="newsTrustMEO">Tin cậy: Cao</span>
+              </div>
+              <div class="news-countdown-badge" id="newsTimerMEO">
+                <span class="timer-dot"></span>
+                <span class="impact-time-left" id="newsCountdownMEO">--</span>
+              </div>
+            </div>
+
+            <div class="news-content-box">
+              <p class="news-headline" id="newsHeadlineMEO">Chưa có tin mới cho MEO. Đội Dev đang mở thanh khoản.</p>
+            </div>
+
+            <div class="news-progress-track">
+              <div class="news-progress-fill" id="newsFillMEO" style="width: 0%;"></div>
+            </div>
+          </div>
         </section>
 
-        <!-- TRADING CONTROLS (GIAO DỊCH) -->
+        <!-- TRADING CONTROLS (GIAO DỊCH & ĐÒN BẨY) -->
         <footer class="trading-controls">
           <div class="controls-meta-header">
             <div class="controls-title-group">
               <span class="controls-title">ĐẶT LỆNH GIAO DỊCH</span>
               <span class="controls-tag">Khớp lệnh tức thì</span>
             </div>
-            <span class="controls-tip">Cooldown 0.5s • Phí tự động</span>
+            <span class="controls-tip">Cooldown 0.5s • Trượt giá MEO khi All-in</span>
+          </div>
+
+          <!-- CỤM CÔNG TẮC ĐÒN BẨY MARGIN -->
+          <div class="leverage-toolbar">
+            <div class="leverage-header">
+              <span class="leverage-title">⚡ ĐÒN BẨY MARGIN</span>
+              <span class="leverage-counter" id="leverageCounterBadge">Khô máu: <strong id="leverageRemaining">3/3</strong> lượt</span>
+            </div>
+            <div class="leverage-buttons">
+              <button class="lev-btn active" data-lev="1" id="btnLev1" title="Giao dịch tiền thật 1x không vay nợ">1x Thường</button>
+              <button class="lev-btn lev-x2" data-lev="2" id="btnLev2" title="Sức mua x2 • Cháy ở lỗ -45% • Lãi vay 0.05%/s">⚡ x2</button>
+              <button class="lev-btn lev-x5" data-lev="5" id="btnLev5" title="Sức mua x5 Khô máu • Cháy ở lỗ -18% • Lãi vay 0.05%/s">🔥 x5</button>
+            </div>
+          </div>
+
+          <!-- STATUS BAR HIỂN THỊ VỊ THẾ VAY & LÃI SUẤT KHI DÙNG ĐÒN BẨY -->
+          <div class="leverage-status-bar" id="leverageStatusBar" style="display: none;">
+            <span class="lev-status-tag" id="levStatusTag">ĐANG VAY MARGIN</span>
+            <span class="lev-status-desc" id="levStatusDesc">Nợ sàn: 0 đ • Lãi vay: 0 đ/s</span>
           </div>
 
           <!-- Cooldown bar overlay -->
@@ -232,7 +296,7 @@
     <div class="start-overlay" id="startOverlay">
       <div class="start-card">
         <div class="start-header">
-          <span class="start-badge-pulse">SÀN ĐẤU ĐẦU TƯ</span>
+          <span class="start-badge-pulse">SÀN ĐẤU ĐẦU TƯ v1</span>
           <h2 class="start-title">ĐỈNH HAY ĐÁY? — THỂ LỆ NHANH</h2>
         </div>
 
@@ -240,19 +304,19 @@
           <div class="rule-row">
             <span class="rule-icon">💰</span>
             <div class="rule-content">
-              <strong>Vốn &amp; Thời gian:</strong> Khởi đầu với 100 triệu VNĐ ảo, bạn có 180 giây để tối đa hóa tài sản.
+              <strong>3 Mã Tài Sản:</strong> 🍵 <strong>TRS</strong> (ổn định), 🌸 <strong>LAN</strong> (biến động), 🐱 <strong>MEO</strong> (Coin Mèo Béo siêu tốc, trượt giá khi All-in).
+            </div>
+          </div>
+          <div class="rule-row">
+            <span class="rule-icon">⚡</span>
+            <div class="rule-content">
+              <strong>Đòn Bẩy [x2 / x5]:</strong> Tối đa 3 lượt "Khô máu" — tính lãi vay mỗi giây, cẩn thận kẻo <strong>CHÁY TÀI KHOẢN</strong> khi lỗ &gt; 90% vốn!
             </div>
           </div>
           <div class="rule-row">
             <span class="rule-icon">📰</span>
             <div class="rule-content">
-              <strong>Đọc vị Tin Nóng:</strong> Theo dõi 2 bảng tin TRS &amp; LAN (tin báo trước vài giây — hãy để ý độ tin cậy nguồn tin để né bẫy!).
-            </div>
-          </div>
-          <div class="rule-row">
-            <span class="rule-icon">📈</span>
-            <div class="rule-content">
-              <strong>Bắt Đáy, Chốt Đỉnh:</strong> Bấm MUA / BÁN / ALL-IN đúng thời điểm để săn danh hiệu "Cá Mập Phố Wall".
+              <strong>3 Kênh Tin Nóng:</strong> Báo trước 4.5s để ra quyết định — tin Vĩ Mô tăng lãi suất sẽ đẩy phí vay margin tăng vọt!
             </div>
           </div>
         </div>
@@ -263,6 +327,52 @@
         </button>
       </div>
     </div>
+  </div>
+
+  <!-- MODAL: CHÁY TÀI KHOẢN (LIQUIDATION) & BÀI HỌC ĐÒN BẨY -->
+  <div class="modal-backdrop" id="liquidationModal" style="display: none;">
+    <div class="modal-card liquidation-card">
+      <div class="modal-header">
+        <div class="liquidate-alert-icon">💥</div>
+        <div class="liquidate-tag">CƯỠNG BỨC THANH LÝ (LIQUIDATED)</div>
+        <h2 class="liquidate-title">CHÁY TÀI KHOẢN!</h2>
+        <div class="rank-name liquidate-rank-name">Chủ Tịch Hội Những Người Ra Đảo 🏝️</div>
+        <div class="rank-quote">"Đòn bẩy là con dao hai lưỡi - đã cảnh báo mà vẫn cố all-in margin!"</div>
+      </div>
+
+      <!-- BÀI HỌC ĐÒN BẨY SO SÁNH -->
+      <div class="leverage-lesson-box" id="leverageLessonBox">
+        <div class="lesson-header">
+          <span class="lesson-icon">💡</span>
+          <strong>BÀI HỌC ĐÒN BẨY XƯƠNG MÁU</strong>
+        </div>
+        <div class="lesson-comparison-grid">
+          <div class="lesson-col lesson-bad">
+            <span class="l-badge bad">ĐÒN BẨY <span id="lesLevBad">x5</span></span>
+            <div class="l-val danger" id="lesPnlBad">-90% (CHÁY SẠCH)</div>
+            <p class="l-desc">Mất trắng toàn bộ vốn ký quỹ. Bị sàn tịch thu cổ phiếu/coin để thanh toán nợ vay!</p>
+          </div>
+          <div class="lesson-col lesson-good">
+            <span class="l-badge good">NẾU ĐÁNH 1X THƯỜNG</span>
+            <div class="l-val safe" id="lesPnlGood">Còn lại 82.0 Tr đ</div>
+            <p class="l-desc" id="lesDescGood">Giá chỉ giảm -18%, tài sản vẫn còn nguyên, KHÔNG BỊ CHÁY và vẫn còn cơ hội về bờ!</p>
+          </div>
+        </div>
+        <div class="lesson-quote-footer">
+          "Đòn bẩy khuếch đại lòng tham nhưng thanh trừng tài sản siêu tốc. Đừng bao giờ all-in đòn bẩy vào tài sản biến động cao!"
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-modal-action btn-spectate" id="btnSpectate">
+          👀 Xem tiếp biểu đồ (Chế độ khán giả)
+        </button>
+        <button class="btn-modal-action btn-restart" id="btnRestartFromLiquidation">
+          🔄 Chơi ván mới (Khởi tạo lại 100Tr)
+        </button>
+      </div>
+    </div>
+  </div>
   </div>
 
   <!-- MODAL: SUMMARY / GAME OVER -->
