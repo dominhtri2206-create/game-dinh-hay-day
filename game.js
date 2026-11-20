@@ -705,7 +705,6 @@
       mkt.prices.push(newPrice);
     });
   }
-  }
 
   // =========================================================================
   // 5. CANVAS RENDERER (Crisp Retina Line Chart + Markers + Crosshair)
