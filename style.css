@@ -1046,108 +1046,105 @@ html, body {
 .start-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(8, 12, 20, 0.92);
+  background: rgba(6, 9, 16, 0.92);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 30;
-  padding: 16px;
+  z-index: 50;
+  padding: 12px;
   animation: fadeIn 0.3s ease;
 }
 
 .start-card {
   width: 100%;
-  max-width: 420px;
-  background: #131a29;
-  border: 1.5px solid rgba(56, 189, 248, 0.35);
+  max-width: 440px;
+  background: linear-gradient(180deg, #151d2c 0%, #0d131f 100%);
+  border: 1.5px solid rgba(56, 189, 248, 0.4);
   border-radius: var(--radius-lg);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7), 0 0 30px rgba(16, 185, 129, 0.15);
-  padding: 20px;
-  text-align: center;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.8), 0 0 30px rgba(56, 189, 248, 0.15);
+  padding: 16px 16px 14px;
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 10px;
   animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.start-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+}
+
 .start-badge-pulse {
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   font-weight: 800;
   letter-spacing: 0.08em;
-  padding: 3px 10px;
+  padding: 2px 9px;
   border-radius: var(--radius-full);
   background: rgba(56, 189, 248, 0.15);
   color: #38bdf8;
-  border: 1px solid rgba(56, 189, 248, 0.4);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  text-transform: uppercase;
 }
 
 .start-title {
-  font-size: 1.45rem;
+  font-size: 1.15rem;
   font-weight: 800;
-  letter-spacing: -0.02em;
-  background: linear-gradient(135deg, #38bdf8 0%, #a855f7 50%, #f43f5e 100%);
+  letter-spacing: -0.01em;
+  background: linear-gradient(135deg, #38bdf8 0%, #c084fc 50%, #f43f5e 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  text-transform: uppercase;
+  line-height: 1.3;
 }
 
-.start-subtitle {
-  font-size: 0.78rem;
-  color: var(--text-secondary);
-  margin-top: -6px;
+.start-rules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
 }
 
-.start-rules-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  width: 100%;
-  margin: 4px 0 8px;
-}
-
-.rule-item {
-  background: rgba(255, 255, 255, 0.03);
+.rule-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  background: rgba(255, 255, 255, 0.035);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: var(--radius-md);
-  padding: 7px 9px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  padding: 8px 10px;
   text-align: left;
 }
 
-.rule-item .r-icon {
-  font-size: 1.25rem;
+.rule-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  line-height: 1.2;
 }
 
-.rule-item .r-text-group {
-  display: flex;
-  flex-direction: column;
+.rule-content {
+  font-size: 0.81rem;
+  color: #cbd5e1;
+  line-height: 1.38;
 }
 
-.rule-item .r-lbl {
-  font-size: 0.62rem;
-  color: var(--text-muted);
-  font-weight: 600;
-}
-
-.rule-item .r-val {
-  font-size: 0.76rem;
+.rule-content strong {
   color: #ffffff;
-  font-family: var(--font-mono);
+  font-weight: 700;
 }
 
 .btn-start-game {
   width: 100%;
-  min-height: 52px;
+  min-height: 48px;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: #ffffff;
   border: none;
   border-radius: var(--radius-md);
   font-family: var(--font-sans);
-  font-size: 1.05rem;
+  font-size: 1.0rem;
   font-weight: 800;
   letter-spacing: 0.03em;
   cursor: pointer;
@@ -1159,6 +1156,7 @@ html, body {
   position: relative;
   overflow: hidden;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-top: 2px;
 }
 
 .btn-start-game:hover {
@@ -1169,6 +1167,37 @@ html, body {
 
 .btn-start-game:active {
   transform: scale(0.98);
+}
+
+@media (max-width: 440px), (max-height: 680px) {
+  .start-overlay {
+    padding: 8px;
+  }
+  .start-card {
+    padding: 12px 10px 10px;
+    gap: 7px;
+  }
+  .start-title {
+    font-size: 1.0rem;
+  }
+  .start-rules-list {
+    gap: 5px;
+  }
+  .rule-row {
+    padding: 6px 8px;
+    gap: 7px;
+  }
+  .rule-icon {
+    font-size: 1.1rem;
+  }
+  .rule-content {
+    font-size: 0.75rem;
+    line-height: 1.32;
+  }
+  .btn-start-game {
+    min-height: 44px;
+    font-size: 0.92rem;
+  }
 }
 
 /* --------------------------------------------------------------------------
